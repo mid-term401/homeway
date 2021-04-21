@@ -28,7 +28,11 @@
 
 ## Domain Modeling:
 
-## Database Relationships
+![Modeling](https://github.com/mid-term401/homeway/blob/main/assets/Modeling.png)
+
+## Database Relationships:
+
+![Database](https://github.com/mid-term401/homeway/blob/main/assets/DatabaseStructure.png)
 
 ## Wire frames:
 
