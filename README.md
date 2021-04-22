@@ -25,6 +25,50 @@
 4. Install all dependencies needed for the project. `npm i`, `npm start`
 
 ## User Stories:
+1.	As a host, I want the ability to register on this site and ask for certain services.
+ - Feature Tasks:
+    * Host can sign up/ sign in/ sign up with Google
+    * Host can add one or many services.
+    * Host can edit and delete a service.
+    * Host can accept or decline a volunteer
+ - Acceptance Tests:
+    * Basic Auth
+    * Bearer Auth
+    * ACL/ only authorized users can access hosts information.
+2.	As a volunteer, I want the ability to search for working opportunity in different fields in different countries.
+  - Feature Tasks:
+    * Volunteer can sign up/ sign in/ sign up with Google
+    * Volunteer can search for opportunities in a specific field and country.
+    * Volunteer can view the host profile.
+    * Volunteer can apply for a service.
+	- Acceptance Tests:
+    * Basic Auth
+    * Bearer Auth
+    * ACL/ only authorized users can access volunteer information.
+3.	As a host, I want the ability to communicate with the volunteer before accepting the request for the services through live chat or email.
+  - Feature Tasks:
+    * Host can send emails to the volunteer and ask for further info.
+    * Host and volunteer can have a live chat.
+  - Acceptance Tests:
+    * E-mail test (nodemailer)
+    * Live Chat test (socket io)
+4.	As a user, I want my data to be safe and secure and only shared after my consent.
+  - Feature Tasks:
+    * All data is saved in the database.
+    * Access control is applied
+  - Acceptance Tests:
+    * ACL test
+5.	As a volunteer, I want the ability to rate my host and see other’s feedback.
+  - Feature Tasks:
+    * Display feedbacks on the home page in the feedback section.
+    * A form to write a feedback
+    * The ability to rate a user
+  - Acceptance Tests:
+    * Feedback is working
+    * Rating is saved and displayed properly
+6.	As a user, I want the ability to post in the websites journal. (stretch goal)
+7.	As an admin, I want the ability to do CRUD to all users (stretch goal)
+8.	As a user, I can ask for help from the technical support (admins) / Socket.io
 
 ## Domain Modeling:
 

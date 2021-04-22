@@ -6,6 +6,8 @@
 ## Minimum Viable Product
 
 ## Stretch Goals:
+1. For each volunteering opportunity, add to favorites button to show in my list page.
+2. Share volunteering opportunity to social media.
 
 ## Functional Requirements:
 
