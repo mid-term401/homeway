@@ -1,6 +1,6 @@
 # Software Requirements
 ## Vision
- Our Vision is to provide the user with the best possible experience in a safe environment. We encourage cultural exchange by connecting those who needs help with those who are willing to offer it all over the world. We aim to aceed your needs and requirements.
+ Our Vision is to provide the user with the best possible experience in a safe environment. We encourage cultural exchange by connecting those who need help with those who are willing to offer it all over the world. We aim to aceed your needs and requirements.
   
 ![](https://hertz.mediaclick.work/mp-include/uploads/2017/04/vision.png)
 
@@ -12,7 +12,7 @@
   * Any user can share their feedback with others.
   * Any user can give rating based on his/her experience.
   * Our website is responsive to all operating systems.
- - Out:
+- Out:
   * Our site will not provide visa services (it is up to the host).
   * Our site will not share data with any third party.
 
