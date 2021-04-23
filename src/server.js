@@ -18,12 +18,16 @@ const client = new pg.Client(process.env.DATABASE_URL);
 
 // App Level MW
 app.use(cors());
+// view-static
 
 // Routes
+
+
 
 // Catchalls
 app.use(notFound);
 app.use(errorHandler);
+
 
 module.exports = {
   start: (PORT) => {
