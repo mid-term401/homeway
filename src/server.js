@@ -72,30 +72,30 @@ app.post("/sign_in", handleSignIn);
 
 
 // functions
-function handleSearchBar(req, res){
-
-  console.log(req.body)
+function handleSearchBar(req, res) {
+  // Getting Data from Country API
+  // console.log(req.body)
   const countryName = req.body.myCountry;
   const countryURL = `https://restcountries.eu/rest/v2/name/${countryName}`;
-  return superagent.get(countryURL).then( data=>{
+  return superagent.get(countryURL).then(data => {
     let countryNames = [];
-    data.body.map(element =>{
-      countryNames.push( new Country(element));
+    data.body.map(element => {
+      countryNames.push(new Country(element));
     })
     console.log(countryNames);
-    const query='SELECT * FROM services WHERE country=$1 && workField=$2';
-  let safeValue = [req.body.myCountry, req.body.WorkField];
-  client.query(query,safeValue).then(data=>{
-    console.log(data.rows);
-    res.render('searchResults',{"data":data.rows})
-  })
-    return countryNames;
-    res.send(countryNames)
+    const query = 'SELECT * FROM Service WHERE country=$1 && title=$2';
+    let safeValue = [countryNames[0].country, req.body.WorkField];
+    client.query(query, safeValue).then(data => {
+      console.log(data.rows);
+      res.render('searchResults', { "data": data.rows })
+    })
+    // return countryNames;
+    // res.send(countryNames)
   }).catch(err => {
     console.log(`error in getting the Countries names from the API ${err}`)
   })
 }
-function handleDisplaySearch(req,res){
+function handleDisplaySearch(req, res) {
   res.render('searchResults')
 }
 
@@ -137,7 +137,7 @@ async function handleSignIn(req, res) {
     } else {
       const hashedPassword = searchResults[0].password;
       const success = await bcrypt.compare(formData.password, hashedPassword);
-      
+
       if (success === true) {
         // Check if the user volunteer or host
         if (!searchResults[0].category) {
@@ -152,7 +152,7 @@ async function handleSignIn(req, res) {
           client.query(updateQuery, safeValues)
             .then(data => {
               console.log(`Updated the token`);
-              res.send({"username":searchResults[0].user_name, "token": refreshToken})
+              res.send({ "username": searchResults[0].user_name, "token": refreshToken })
               // res.render("index_volunteer", {volunteerName: searchResults[0].user_name})
               // res.send(`<h2>Logged in successfully as the volunteer ${searchResults[0].user_name} </h2>`)
             })
@@ -173,7 +173,7 @@ async function handleSignIn(req, res) {
           client.query(updateQuery, safeValues)
             .then(data => {
               console.log(`Updated the token`);
-              res.send({"username":searchResults[0].user_name, "token": refreshToken})
+              res.send({ "username": searchResults[0].user_name, "token": refreshToken })
               // res.render("index_host", {hostName: searchResults[0].user_name});
               // res.send(`<h2>Logged in successfully as the host ${searchResults[0].user_name} </h2>`)
             })
@@ -183,10 +183,10 @@ async function handleSignIn(req, res) {
           res.setHeader("set-cookie", [`JWT_TOKEN=${token}; httponly; samesite=lax`])
           // res.send({ "success": "Logged in successfully!", "refreshToken": refreshtoken })
         } else {
-          res.send({"Error": "Incorrect username or password"});
+          res.send({ "Error": "Incorrect username or password" });
         }
       } else {
-        res.send({"Error": "Incorrect username or password"});
+        res.send({ "Error": "Incorrect username or password" });
       }
     }
 
@@ -220,14 +220,14 @@ async function handleVolunteerSignup(req, res) {
       client.query(insertQuery, safeValues)
         .then(data => {
           // console.log(`Volunteer added to the database`);
-          res.send({"success": "Volunteer created successfully"});
+          res.send({ "success": "Volunteer created successfully" });
         })
         .catch(error => {
           // console.log('Error while creating the a volunteer', error)
-          res.send({"Error": "Volunteer was not created successfully"});
+          res.send({ "Error": "Volunteer was not created successfully" });
         })
     } else {
-      res.send({"Error": "Volunteer already exists"});
+      res.send({ "Error": "Volunteer already exists" });
       // res.send("<h2>Error, User already exists</h2>");
     }
 
@@ -261,15 +261,15 @@ async function handleHostSignup(req, res) {
       client.query(insertQuery, safeValues)
         .then(data => {
           console.log(`Host added to the database`);
-          res.send({"success": "Host created successfully"});
+          res.send({ "success": "Host created successfully" });
         })
         .catch(error => {
-          res.send({"Error": "Host was not created successfully"});
+          res.send({ "Error": "Host was not created successfully" });
           // console.log('Error while creating the a host', error)
         })
     } else {
       // res.send("<h2>Error, Host already exists</h2>");
-      res.send({"Error": "Host already exists"});
+      res.send({ "Error": "Host already exists" });
     }
 
 
@@ -431,7 +431,7 @@ async function deleteServiceProfile(req, res) {
   res.redirect(`/host/${8}`);
 }
 //constructors 
-function Country(data){
+function Country(data) {
   this.country = data.name;
   this.flag = data.flag;
 }
