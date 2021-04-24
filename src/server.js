@@ -112,7 +112,8 @@ async function handleSignIn(req, res) {
           client.query(updateQuery, safeValues)
             .then(data => {
               console.log(`Updated the token`);
-              res.render("index_volunteer", {volunteerName: searchResults[0].user_name})
+              res.send({"username":searchResults[0].user_name, "token": refreshToken})
+              // res.render("index_volunteer", {volunteerName: searchResults[0].user_name})
               // res.send(`<h2>Logged in successfully as the volunteer ${searchResults[0].user_name} </h2>`)
             })
             .catch(error => {
@@ -132,7 +133,8 @@ async function handleSignIn(req, res) {
           client.query(updateQuery, safeValues)
             .then(data => {
               console.log(`Updated the token`);
-              res.render("index_host", {hostName: searchResults[0].user_name});
+              res.send({"username":searchResults[0].user_name, "token": refreshToken})
+              // res.render("index_host", {hostName: searchResults[0].user_name});
               // res.send(`<h2>Logged in successfully as the host ${searchResults[0].user_name} </h2>`)
             })
             .catch(error => {
@@ -141,10 +143,10 @@ async function handleSignIn(req, res) {
           res.setHeader("set-cookie", [`JWT_TOKEN=${token}; httponly; samesite=lax`])
           // res.send({ "success": "Logged in successfully!", "refreshToken": refreshtoken })
         } else {
-          res.send("<h2>Error, Incorrect username or password</h2>");
+          res.send({"Error": "Incorrect username or password"});
         }
       } else {
-        res.send("<h2>Error, Incorrect username or password</h2>");
+        res.send({"Error": "Incorrect username or password"});
       }
     }
 
@@ -219,7 +221,6 @@ async function handleHostSignup(req, res) {
       client.query(insertQuery, safeValues)
         .then(data => {
           console.log(`Host added to the database`);
-          res.redirect("/");
           res.send({"success": "Host created successfully"});
         })
         .catch(error => {
