@@ -1,7 +1,6 @@
 
 # Project Name: *Homeway*
 - [Heroku Deployment Link]()
-
 ## Our team:
 * Boshra Jaber 
 * Haneen Khasawneh
@@ -16,6 +15,8 @@
 
 ## API used:
 [Country's name API](https://restcountries.eu/)
+
+## Libraries and Packages: 
 [Node Mailer](https://nodemailer.com/about/)
 
 ## Getting Started

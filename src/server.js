@@ -40,6 +40,7 @@ const secretKeyRefresher = process.env.SECRET_KEY_REFRESHER;
 
 // App Level MW
 app.use(cors());
+// view-static
 
 // Routes
 
@@ -51,13 +52,43 @@ app.post("/volunteers/sign_up", handleVolunteerSignup);
 
 app.get("/hosts/sign_up", handleHostForm);
 
+app.post('/searchResults', handleSearchBar)
+app.get('/searchResults', handleDisplaySearch)
+
 app.post("/hosts/sign_up", handleHostSignup);
 
 app.get("/sign_in", handleSignInForm);
 
 app.post("/sign_in", handleSignIn);
 
+
 // functions
+function handleSearchBar(req, res){
+
+  console.log(req.body)
+  const countryName = req.body.myCountry;
+  const countryURL = `https://restcountries.eu/rest/v2/name/${countryName}`;
+  return superagent.get(countryURL).then( data=>{
+    let countryNames = [];
+    data.body.map(element =>{
+      countryNames.push( new Country(element));
+    })
+    console.log(countryNames);
+        // const query='SELECT * FROM services WHERE country=$1 && workField=$2';
+  // let safeValue = [req.body.myCountry, req.body.WorkField];
+  // client.query(query,safeValue).then(data=>{
+  //   console.log(data.rows);
+  //   res.render('searchResults',{"data":data.rows})
+  // })
+    // return countryNames;
+    // res.send(countryNames)
+  }).catch(err => {
+    console.log(`error in getting the Countries names from the API ${err}`)
+  })
+}
+function handleDisplaySearch(req,res){
+  res.render('searchResults')
+}
 
 function handleHome(req, res) {
   res.render("index");
@@ -277,6 +308,12 @@ function checkHostExists(userName) {
 // Catchalls
 app.use(notFound);
 app.use(errorHandler);
+
+//constructors 
+function Country(data){
+  this.country = data.name;
+  this.flag = data.flag;
+}
 
 module.exports = {
   start: (PORT) => {
