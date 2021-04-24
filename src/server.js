@@ -59,14 +59,8 @@ app.get('/searchResults', handleDisplaySearch)
 
 // functions
 function handleSearchBar(req, res){
-  console.log(req.body)
-  // const query='SELECT * FROM books WHERE country=$1 && workField=$2';
-  // let safeValue = [req.body.myCountry, req.body.WorkField];
-  // client.query(query,safeValue).then(data=>{
-  //   console.log(data.rows);
-  //   res.render('searchResults',{"data":data.rows})
-  // })
 
+  console.log(req.body)
   const countryName = req.body.myCountry;
   const countryURL = `https://restcountries.eu/rest/v2/name/${countryName}`;
   return superagent.get(countryURL).then( data=>{
@@ -75,8 +69,14 @@ function handleSearchBar(req, res){
       countryNames.push( new Country(element));
     })
     console.log(countryNames);
+        // const query='SELECT * FROM services WHERE country=$1 && workField=$2';
+  // let safeValue = [req.body.myCountry, req.body.WorkField];
+  // client.query(query,safeValue).then(data=>{
+  //   console.log(data.rows);
+  //   res.render('searchResults',{"data":data.rows})
+  // })
     // return countryNames;
-    res.send(countryNames)
+    // res.send(countryNames)
   }).catch(err => {
     console.log(`error in getting the Countries names from the API ${err}`)
   })
