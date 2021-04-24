@@ -69,14 +69,14 @@ function handleSearchBar(req, res){
       countryNames.push( new Country(element));
     })
     console.log(countryNames);
-        // const query='SELECT * FROM services WHERE country=$1 && workField=$2';
-  // let safeValue = [req.body.myCountry, req.body.WorkField];
-  // client.query(query,safeValue).then(data=>{
-  //   console.log(data.rows);
-  //   res.render('searchResults',{"data":data.rows})
-  // })
-    // return countryNames;
-    // res.send(countryNames)
+    const query='SELECT * FROM services WHERE country=$1 && workField=$2';
+  let safeValue = [req.body.myCountry, req.body.WorkField];
+  client.query(query,safeValue).then(data=>{
+    console.log(data.rows);
+    res.render('searchResults',{"data":data.rows})
+  })
+    return countryNames;
+    res.send(countryNames)
   }).catch(err => {
     console.log(`error in getting the Countries names from the API ${err}`)
   })
