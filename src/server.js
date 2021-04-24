@@ -52,8 +52,8 @@ app.post("/volunteers/sign_up", handleSignup)
 
 app.get("/sign_in", handleSignInForm );
 
-app.post('/searchResultss', handleSearchBar)
-// app.get('/searchResults', handleDisplaySearch)
+app.post('/searchResults', handleSearchBar)
+app.get('/searchResults', handleDisplaySearch)
 
 // app.post("/sign_in", handleSignIn );
 
@@ -67,11 +67,15 @@ function handleSearchBar(req, res){
     data.body.map(element =>{
       countryNames.push( new Country(element));
     })
+    console.log(countryNames);
     // return countryNames;
     res.send(countryNames)
   }).catch(err => {
     console.log(`error in getting the Countries names from the API ${err}`)
   })
+}
+function handleDisplaySearch(req,res){
+  res.render('searchResults')
 }
 
 function handleHome(req, res) {

@@ -1,7 +1,6 @@
 
 # Project Name: *Homeway*
 - [Heroku Deployment Link]()
-// Google APi key: AIzaSyC5H2DJ2O_Qzq7SLNIRx7-QB4R5yqwyAwo
 ## Our team:
 * Boshra Jaber 
 * Haneen Khasawneh
