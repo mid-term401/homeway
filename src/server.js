@@ -68,10 +68,10 @@ app.post("/hosts/sign_up", handleHostSignup);
 
 app.get("/sign_in", handleSignInForm);
 
-app.post("/sign_in", handleSignIn);
+app.post("/sign_in", verifyToken ,handleSignIn);
 
 
-// functions
+// functions Samer
 function handleSearchBar(req, res){
 
   console.log(req.body)
@@ -99,13 +99,17 @@ function handleDisplaySearch(req,res){
   res.render('searchResults')
 }
 
-function handleHome(req, res) {
+async function handleHome(req, res) {
   res.render("index");
 
-  // const token = req.cookies.JWT_TOKEN;
-  // if(token) {
-  //   const user = await validateToken(token, JWT_SECRET);
-  // }
+  const token = req.cookies.JWT_TOKEN;
+  if(token) {
+    const user = await validateToken(token, JWT_SECRET);
+
+    if(user === null) {
+      res.send
+    }
+  }
 }
 
 function handleVolunteerForm(req, res) {
@@ -126,14 +130,12 @@ async function handleSignIn(req, res) {
 
     const formData = req.body;
     searchResults = await checkVolunteerExists(formData.username);
-    console.log(searchResults);
 
     if (searchResults.length === 0) {
       searchResults = await checkHostExists(formData.username)
-      console.log("Host");
     }
     if (searchResults.length === 0) {
-      res.send("<h2>Error, Incorrect username or password</h2>");
+      res.json("Error Incorrect username or password");
     } else {
       const hashedPassword = searchResults[0].password;
       const success = await bcrypt.compare(formData.password, hashedPassword);
@@ -141,41 +143,43 @@ async function handleSignIn(req, res) {
       if (success === true) {
         // Check if the user volunteer or host
         if (!searchResults[0].category) {
-          const payload = { "name": searchResults[0].user_name, "role": "volunteer" }
+          const payload = {id: searchResults[0].id, name: searchResults[0].user_name, role: "volunteer" }
           const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "15s" });
           const refreshToken = jwt.sign(payload, process.env.SECRET_KEY_REFRESHER)
-          // console.log("payload", payload , `Token`, token, "refreshToken", refreshToken);
+
           // Store the refresh token in DB
           const updateQuery = "update volunteer set token = $1 where user_name = $2;";
           const safeValues = [refreshToken, searchResults[0].user_name]
           console.log(`Refresh token`, refreshToken);
           client.query(updateQuery, safeValues)
-            .then(data => {
+            .then(() => {
               console.log(`Updated the token`);
-              res.send({"username":searchResults[0].user_name, "token": refreshToken})
-              // res.render("index_volunteer", {volunteerName: searchResults[0].user_name})
-              // res.send(`<h2>Logged in successfully as the volunteer ${searchResults[0].user_name} </h2>`)
+              res.json({
+                username: searchResults[0].user_name,
+                token : refreshToken
+              })
             })
             .catch(error => {
-              console.log('Error while updating the refresh token', error)
+              res.json('Error while updating the refresh token', error);
             })
           res.setHeader("set-cookie", [`JWT_TOKEN=${token}; httponly; samesite=lax`])
           // res.send({ "success": "Logged in successfully!", "refreshToken": refreshtoken })
         } else if (searchResults[0].category) {
-          const payload = { "name": searchResults[0].user_name, "role": "host" }
+          const payload = {id: searchResults[0].id, name: searchResults[0].user_name, role: "host" }
           const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "15s" });
           const refreshToken = jwt.sign(payload, process.env.SECRET_KEY_REFRESHER)
-          // console.log("payload", payload , `Token`, token, "refreshToken", refreshToken);
+          
           // Store the refresh token in DB
           const updateQuery = "update host set token = $1 where user_name = $2;";
           const safeValues = [refreshToken, searchResults[0].user_name]
-          console.log(`Refresh token`, refreshToken);
+
           client.query(updateQuery, safeValues)
             .then(data => {
               console.log(`Updated the token`);
-              res.send({"username":searchResults[0].user_name, "token": refreshToken})
-              // res.render("index_host", {hostName: searchResults[0].user_name});
-              // res.send(`<h2>Logged in successfully as the host ${searchResults[0].user_name} </h2>`)
+              res.json({
+                username: searchResults[0].user_name,
+                token : refreshToken
+              })
             })
             .catch(error => {
               console.log('Error while updating the refresh token', error)
@@ -183,10 +187,10 @@ async function handleSignIn(req, res) {
           res.setHeader("set-cookie", [`JWT_TOKEN=${token}; httponly; samesite=lax`])
           // res.send({ "success": "Logged in successfully!", "refreshToken": refreshtoken })
         } else {
-          res.send({"Error": "Incorrect username or password"});
+          res.json("Error Incorrect username or password")
         }
       } else {
-        res.send({"Error": "Incorrect username or password"});
+        res.json("Error Incorrect username or password")
       }
     }
 
@@ -220,15 +224,14 @@ async function handleVolunteerSignup(req, res) {
       client.query(insertQuery, safeValues)
         .then(data => {
           // console.log(`Volunteer added to the database`);
-          res.send({"success": "Volunteer created successfully"});
+          res.json("success Volunteer created successfully");
         })
         .catch(error => {
           // console.log('Error while creating the a volunteer', error)
-          res.send({"Error": "Volunteer was not created successfully"});
+          res.json("Error, Volunteer was not created successfully");
         })
     } else {
-      res.send({"Error": "Volunteer already exists"});
-      // res.send("<h2>Error, User already exists</h2>");
+      res.json("Error Volunteer already exists");
     }
 
 
@@ -261,15 +264,13 @@ async function handleHostSignup(req, res) {
       client.query(insertQuery, safeValues)
         .then(data => {
           console.log(`Host added to the database`);
-          res.send({"success": "Host created successfully"});
+          res.json("success Host created successfully");
         })
         .catch(error => {
-          res.send({"Error": "Host was not created successfully"});
-          // console.log('Error while creating the a host', error)
+          res.json("Error Host was not created successfully");
         })
     } else {
-      // res.send("<h2>Error, Host already exists</h2>");
-      res.send({"Error": "Host already exists"});
+      res.json("Error Host already exists");
     }
 
 
@@ -311,7 +312,9 @@ function checkHostExists(userName) {
   }
 }
 
-
+function verifyToken(req, res, next) {
+  
+}
 
 
 // Catchalls
@@ -319,7 +322,7 @@ app.use(notFound);
 app.use(errorHandler);
 
 
-// functions
+// functions Ibrahim
 
 async function updateHostProfile(req, res) {
   let id = req.params.id;
@@ -429,6 +432,7 @@ async function deleteServiceProfile(req, res) {
   let safeValues = [id];
   let data = await client.query(selectQ, safeValues);
   res.redirect(`/host/${8}`);
+}
 
 //constructors 
 function Country(data){
@@ -449,4 +453,4 @@ module.exports = {
         console.log("Error while connecting to the DB ..", error);
       });
   },
-};
+}
