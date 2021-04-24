@@ -83,17 +83,18 @@ function handleSearchBar(req, res) {
       countryNames.push(new Country(element));
     })
     console.log(countryNames);
-    const query = 'SELECT * FROM Service WHERE country=$1 && title=$2';
+    const query = 'SELECT * FROM Service WHERE country=$1 AND title=$2';
     let safeValue = [countryNames[0].country, req.body.WorkField];
     client.query(query, safeValue).then(data => {
-      console.log(data.rows);
+      console.log('Search results from DB: '+ data.rows);
       res.render('searchResults', { "data": data.rows })
+    }).catch(err =>{
+      console.log(`error in getting search results from DB ${err}`);
     })
-    // return countryNames;
-    // res.send(countryNames)
   }).catch(err => {
     console.log(`error in getting the Countries names from the API ${err}`)
   })
+
 }
 function handleDisplaySearch(req, res) {
   res.render('searchResults')
