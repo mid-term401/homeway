@@ -429,7 +429,7 @@ async function deleteServiceProfile(req, res) {
   let safeValues = [id];
   let data = await client.query(selectQ, safeValues);
   res.redirect(`/host/${8}`);
-
+}
 //constructors 
 function Country(data){
   this.country = data.name;
