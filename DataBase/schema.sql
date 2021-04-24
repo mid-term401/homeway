@@ -1,9 +1,11 @@
-CREATE TABLE volunteer (
+drop table if exists volunteer, host, sign_in, Service, admin, admin_sign_in, feedback;
+
+CREATE TABLE IF NOT EXISTS volunteer (
   id SERIAL PRIMARY KEY,
   user_name VARCHAR (50) NOT NULL UNIQUE,
   first_name VARCHAR (50) NOT NULL,
   last_name VARCHAR (50) NOT NULL,
-  password VARCHAR (50) NOT NULL,
+  password VARCHAR (255) NOT NULL,
   description text,
   email VARCHAR (255) NOT NULL UNIQUE,
   country VARCHAR (50) NOT NULL,
@@ -12,34 +14,33 @@ CREATE TABLE volunteer (
   passport text,
   address VARCHAR (50) NOT NULL,
   rating int,
-  profile_image text
+  profile_image text,
+  token text
 );
-CREATE TABLE host (
+CREATE TABLE IF NOT EXISTS host (
   id SERIAL PRIMARY KEY,
   user_name VARCHAR (50) NOT NULL UNIQUE,
   first_name VARCHAR (50) NOT NULL,
   last_name VARCHAR (50) NOT NULL,
-  password VARCHAR (50) NOT NULL,
+  password VARCHAR (255) NOT NULL,
   description text,
   email VARCHAR (255) NOT NULL UNIQUE,
   country VARCHAR (50) NOT NULL,
   birth_date DATE NOT NULL,
-  category VARCHAR (50) NOT NULL,
-  details VARCHAR (255) NOT NULL,
-  skills VARCHAR (50),
-  passport text,
+  category VARCHAR (50),
   address VARCHAR (50) NOT NULL,
   rating int,
-  profile_image text
+  profile_image text,
+  token text
 );
-CREATE TABLE sign_in (
+CREATE TABLE IF NOT EXISTS sign_in (
   id SERIAL PRIMARY KEY,
   user_name VARCHAR (50) NOT NULL UNIQUE,
-  Password VARCHAR (50) NOT NULL
+  Password VARCHAR (255) NOT NULL
 );
 -- ALTER TABLE sign_in ADD COLUMN volunteer_id INT REFERENCES volunteer(id)
 -- ALTER TABLE sign_in ADD COLUMN host_id INT REFERENCES host(id)
-CREATE TABLE Service (
+CREATE TABLE IF NOT EXISTS Service (
   id SERIAL PRIMARY KEY,
   title VARCHAR (50) NOT NULL,
   description text NOT NULL,
@@ -56,23 +57,23 @@ CREATE TABLE Service (
   profile_image text
 );
 -- ALTER TABLE service ADD COLUMN host_id INT REFERENCES host(id)
-CREATE TABLE admin (
+CREATE TABLE IF NOT EXISTS admin (
   id SERIAL PRIMARY KEY,
   admin_name VARCHAR (50) NOT NULL,
   first_name VARCHAR (50) NOT NULL,
   last_name VARCHAR (50) NOT NULL,
-  Password VARCHAR (50) NOT NULL,
+  Password VARCHAR (255) NOT NULL,
   email VARCHAR (255) NOT NULL,
   description text NOT NULL
 );
-CREATE TABLE admin_sign_in (
+CREATE TABLE IF NOT EXISTS admin_sign_in (
   id SERIAL PRIMARY KEY,
   email VARCHAR (255) NOT NULL,
   confirmation_code VARCHAR (50) NOT NULL,
-  Password VARCHAR (50) NOT NULL
+  Password VARCHAR (255) NOT NULL
 );
 -- ALTER TABLE admin_sign_in ADD COLUMN admin_id INT REFERENCES admin(id)
-CREATE TABLE feedback (
+CREATE TABLE IF NOT EXISTS feedback (
   id SERIAL PRIMARY KEY,
   description text
 );
