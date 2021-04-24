@@ -1,7 +1,7 @@
 drop table if exists volunteer, host, sign_in, Service, admin, admin_sign_in, feedback;
 
 CREATE TABLE IF NOT EXISTS volunteer (
-  id SERIAL PRIMARY KEY,
+  id SERIAL PRIMARY KEY UNIQUE,
   user_name VARCHAR (50) NOT NULL UNIQUE,
   first_name VARCHAR (50) NOT NULL,
   last_name VARCHAR (50) NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS volunteer (
   token text
 );
 CREATE TABLE IF NOT EXISTS host (
-  id SERIAL PRIMARY KEY,
+  id SERIAL PRIMARY KEY UNIQUE,
   user_name VARCHAR (50) NOT NULL UNIQUE,
   first_name VARCHAR (50) NOT NULL,
   last_name VARCHAR (50) NOT NULL,
@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS host (
   rating int,
   profile_image text,
   token text
+
 );
 CREATE TABLE IF NOT EXISTS sign_in (
   id SERIAL PRIMARY KEY,
@@ -54,7 +55,10 @@ CREATE TABLE IF NOT EXISTS Service (
   working_days VARCHAR (50) NOT NULL,
   minumim_age INT NOT NULL,
   address VARCHAR (255) NOT NULL,
-  profile_image text
+  profile_image text,
+  host_id INT ,
+  FOREIGN KEY (host_id) REFERENCES host (id) ON DELETE CASCADE
+
 );
 -- ALTER TABLE service ADD COLUMN host_id INT REFERENCES host(id)
 CREATE TABLE IF NOT EXISTS admin (
@@ -78,3 +82,7 @@ CREATE TABLE IF NOT EXISTS feedback (
   description text
 );
 -- ALTER TABLE feedback ADD COLUMN volunteer_id INT REFERENCES volunteer(id)
+-- CREATE TABLE IF NOT EXISTS hostservice (
+--   id SERIAL PRIMARY KEY,
+--   description text
+-- );
