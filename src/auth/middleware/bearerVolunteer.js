@@ -16,7 +16,7 @@ module.exports = async (req, res, next) => {
         req.user = validUser;
         req.token = validUser.token;
       }
-      console.log("***************", req.user, req.token);
+      // console.log("***************", req.user, req.token);
       next();
     }
   } catch (e) {
@@ -29,16 +29,8 @@ async function checkToken(token) {
   try {
     const searchVolunteer = "select * from volunteer where token = $1 ;";
 
-    const searchHost = "select * from host where token = $1 ;";
-
-    let volunteerData = await client
-      .query(searchVolunteer, [token])
-    if (volunteerData.rows.length === 0) {
-      let hostData = await client.query(searchHost, [token])
-      return hostData.rows[0];
-    }
+    let volunteerData = await client.query(searchVolunteer, [token])
     return volunteerData.rows[0];
-
   } catch (e) {
     console.log(e.message);
   }
