@@ -110,6 +110,7 @@ app.get("/sign_in", handleSignInForm);
 
 app.post("/sign_in", basicAuth, handleSignIn);
 
+
 app.post("/superuser", basicAdmin , handleAdmin);
 
 // app.post("/superuser" , addAdmin);
@@ -121,7 +122,10 @@ app.post("/superuser", basicAdmin , handleAdmin);
 
 
 // Catchalls
-app.use(notFound);
+app.get('/error', (req, res) => {
+  throw new Error('Server Error ');
+});
+app.use('*',notFound);
 app.use(errorHandler);
 
 
@@ -130,6 +134,7 @@ app.use(errorHandler);
 
 
 module.exports = {
+  server:app,
   start: (PORT) => {
     client
       .connect()
