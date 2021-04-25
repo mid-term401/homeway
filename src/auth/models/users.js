@@ -524,6 +524,7 @@ async function checkHostEmail(email) {
   } else return true;
 }
 
+
 // async function addAdmin(req, res) {
 //   const adminData = req.body;
 //   console.log(adminData);
