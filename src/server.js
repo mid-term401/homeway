@@ -77,32 +77,33 @@ app.post("/sign_in",handleSignIn);
 
 // functions
 function handleSearchBar(req, res) {
-  console.log(req.body);
+
+  // Getting Data from Country API
+  // console.log(req.body)
   const countryName = req.body.myCountry;
   const countryURL = `https://restcountries.eu/rest/v2/name/${countryName}`;
-  return superagent
-    .get(countryURL)
-    .then((data) => {
-      let countryNames = [];
-      data.body.map((element) => {
-        countryNames.push(new Country(element));
-      });
-      console.log(countryNames);
-      // const query='SELECT * FROM services WHERE country=$1 && workField=$2';
-      // let safeValue = [req.body.myCountry, req.body.WorkField];
-      // client.query(query,safeValue).then(data=>{
-      //   console.log(data.rows);
-      //   res.render('searchResults',{"data":data.rows})
-      // })
-      // return countryNames;
-      // res.send(countryNames)
+  return superagent.get(countryURL).then(data => {
+    let countryNames = [];
+    data.body.map(element => {
+      countryNames.push(new Country(element));
     })
-    .catch((err) => {
-      console.log(`error in getting the Countries names from the API ${err}`);
-    });
+    console.log(countryNames);
+    const query = 'SELECT * FROM Service WHERE country=$1 AND title=$2';
+    let safeValue = [countryNames[0].country, req.body.WorkField];
+    client.query(query, safeValue).then(data => {
+      console.log('Search results from DB: '+ data.rows);
+      res.render('searchResults', { "data": data.rows })
+    }).catch(err =>{
+      console.log(`error in getting search results from DB ${err}`);
+    })
+  }).catch(err => {
+    console.log(`error in getting the Countries names from the API ${err}`)
+  })
+
 }
+
 function handleDisplaySearch(req, res) {
-  res.render("searchResults");
+  res.render('searchResults')
 }
 
 async function handleHome(req, res) {
@@ -161,7 +162,6 @@ async function handleSignIn(req, res) {
           client.query(updateQuery, safeValues)
             .then(() => {
               console.log(`Updated the token`);
-              // res.send({"Success": searchResults[0].user_name})
               res.json({
                 username: searchResults[0].user_name,
                 token : refreshToken
