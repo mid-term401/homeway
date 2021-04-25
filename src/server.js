@@ -168,11 +168,8 @@ async function handleSignIn(req, res) {
     } else {
       const hashedPassword = searchResults[0].password;
       const success = await bcrypt.compare(formData.password, hashedPassword);
-
       if (success === true) {
-        // Check if the user volunteer or host
-        if (!searchResults[0].category) {
-          const payload = {id: searchResults[0].id, name: searchResults[0].user_name, role: "volunteer" }
+          const payload = {id: searchResults[0].id, name: searchResults[0].user_name, }
           const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "15s" });
           const refreshToken = jwt.sign(payload, process.env.SECRET_KEY_REFRESHER)
 
@@ -193,34 +190,6 @@ async function handleSignIn(req, res) {
               res.json('Error while updating the refresh token', error);
             })
           res.setHeader("set-cookie", [`JWT_TOKEN=${token}; httponly; samesite=lax`])
-          // res.send({ "success": "Logged in successfully!", "refreshToken": refreshtoken })
-        } else if (searchResults[0].category) {
-          const payload = {id: searchResults[0].id, name: searchResults[0].user_name, role: "host" }
-          const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "15s" });
-          const refreshToken = jwt.sign(payload, process.env.SECRET_KEY_REFRESHER)
-          
-          // Store the refresh token in DB
-          const updateQuery = "update host set token = $1 where user_name = $2;";
-          const safeValues = [refreshToken, searchResults[0].user_name]
-
-          client.query(updateQuery, safeValues)
-            .then(data => {
-              console.log(`Updated the token`);
-              res.json({
-                username: searchResults[0].user_name,
-                token : refreshToken
-              })
-            })
-            .catch((error) => {
-              console.log("Error while updating the refresh token", error);
-            });
-          res.setHeader("set-cookie", [
-            `JWT_TOKEN=${token}; httponly; samesite=lax`,
-          ]);
-          // res.send({ "success": "Logged in successfully!", "refreshToken": refreshtoken })
-        } else {
-          res.json("Error Incorrect username or password")
-        }
       } else {
         res.json("Error Incorrect username or password")
       }
