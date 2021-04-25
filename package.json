@@ -5,17 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-<<<<<<< HEAD
     "test-watch": "jest --watchAll",
     "test": "jest --coverage --verbose",
     "sequelize": "cross-env NODE_PATH=. sequelize"
-=======
-
-    "sequelize": "cross-env NODE_PATH=. sequelize"
-
-    "test-watch": "jest --watchAll",
-    "test": "jest --coverage --verbose"
->>>>>>> 6636680b7df1e5c3728813709d391c451cad7f0f
   },
   "repository": {
     "type": "git",
@@ -33,6 +25,7 @@
     "admin-bro": "^4.0.1",
     "admin-bro-expressjs": "^2.1.1",
     "admin-bro-sequelizejs": "^0.5.1",
+    "base-64": "^1.0.0",
     "bcrypt": "^5.0.1",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",

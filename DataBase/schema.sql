@@ -61,12 +61,12 @@ CREATE TABLE IF NOT EXISTS Service (
 -- ALTER TABLE service ADD COLUMN host_id INT REFERENCES host(id)
 CREATE TABLE IF NOT EXISTS admin (
   id SERIAL PRIMARY KEY,
-  admin_name VARCHAR (50) NOT NULL,
+  user_name VARCHAR (50) NOT NULL UNIQUE ,
   first_name VARCHAR (50) NOT NULL,
   last_name VARCHAR (50) NOT NULL,
   Password VARCHAR (255) NOT NULL,
-  email VARCHAR (255) NOT NULL,
-  description text NOT NULL
+  email VARCHAR (255) NOT NULL UNIQUE,
+  token text
 );
 CREATE TABLE IF NOT EXISTS admin_sign_in (
   id SERIAL PRIMARY KEY,
