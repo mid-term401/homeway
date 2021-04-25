@@ -5,9 +5,17 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+<<<<<<< HEAD
     "test-watch": "jest --watchAll",
     "test": "jest --coverage --verbose",
     "sequelize": "cross-env NODE_PATH=. sequelize"
+=======
+
+    "sequelize": "cross-env NODE_PATH=. sequelize"
+
+    "test-watch": "jest --watchAll",
+    "test": "jest --coverage --verbose"
+>>>>>>> 6636680b7df1e5c3728813709d391c451cad7f0f
   },
   "repository": {
     "type": "git",
