@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/mid-term401/homeway#readme",
   "dependencies": {
+    "@admin-bro/sequelize": "^1.2.1",
     "admin-bro": "^4.0.1",
     "admin-bro-expressjs": "^2.1.1",
     "admin-bro-sequelizejs": "^0.5.1",
