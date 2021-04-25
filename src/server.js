@@ -69,8 +69,6 @@ app.post("/hosts/sign_up", handleHostSignup);
 app.get("/sign_in", handleSignInForm);
 
 app.post("/sign_in", handleSignIn);
-
-
 // functions
 function handleSearchBar(req, res) {
   // Getting Data from Country API
@@ -316,7 +314,10 @@ function checkHostExists(userName) {
 
 
 // Catchalls
-app.use(notFound);
+app.get('/error', (req, res) => {
+  throw new Error('Server Error ');
+});
+app.use('*',notFound);
 app.use(errorHandler);
 
 
@@ -438,6 +439,7 @@ function Country(data) {
 }
 
 module.exports = {
+  server:app,
   start: (PORT) => {
     client
       .connect()
