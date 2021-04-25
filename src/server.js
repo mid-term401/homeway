@@ -95,7 +95,11 @@ app.post("/hosts/sign_up", handleHostSignup);
 
 app.get("/sign_in", handleSignInForm);
 
-app.post("/sign_in",handleSignIn);
+
+//app.post("/sign_in",handleSignIn);
+
+
+app.post("/sign_in", handleSignIn);
 
 // functions
 function handleSearchBar(req, res) {
@@ -369,7 +373,10 @@ function verifyToken(req, res, next) {
 
 
 // Catchalls
-app.use(notFound);
+app.get('/error', (req, res) => {
+  throw new Error('Server Error ');
+});
+app.use('*',notFound);
 app.use(errorHandler);
 
 // functions
@@ -621,6 +628,7 @@ function Country(data) {
 }
 
 module.exports = {
+  server:app,
   start: (PORT) => {
     client
       .connect()
