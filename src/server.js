@@ -2,6 +2,7 @@
 
 // 3rd Party Resources
 const express = require("express");
+
 const cors = require("cors");
 require("dotenv").config();
 const superagent = require("superagent");
@@ -18,6 +19,18 @@ const notFound = require("./error-handlers/404.js");
 
 // Prepare the express app
 const app = express();
+
+// ****************
+const db = require("../models")
+const AdminBro = require('admin-bro')
+const AdminBroExpress = require('admin-bro-expressjs')
+const adminBro = new AdminBro({
+  databases: [],
+  rootPath: '/',
+});
+const router = AdminBroExpress.buildRouter(adminBro)
+app.use(adminBro.options.rootPath, router);
+// ***************
 
 const Router = express.Router();
 
@@ -58,7 +71,7 @@ app.put("/host/:id/service/:id", updateServiceProfile);
 app.delete("/host/:id/service/:id", deleteServiceProfile);
 app.get("/host/:id/volunteer/:id", handleHostViewingVolunteer);
 
-app.get("/", handleHome);
+// app.get("/", handleHome);
 
 app.get("/volunteers/sign_up", handleVolunteerForm);
 
