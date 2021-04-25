@@ -504,6 +504,7 @@ async function handleAdmin(req, res) {
   }
 }
 
+
 // functions
 async function checkHostUserName(username) {
   let searchQ = `select * from host where user_name = $1`;

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
 
-    "sequelize": "cross-env NODE_PATH=. sequelize"
+    "sequelize": "cross-env NODE_PATH=. sequelize",
 
     "test-watch": "jest --watchAll",
     "test": "jest --coverage --verbose"
