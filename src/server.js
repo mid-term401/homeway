@@ -20,17 +20,7 @@ const notFound = require("./error-handlers/404.js");
 // Prepare the express app
 const app = express();
 
-// ****************
-const db = require("../models")
-const AdminBro = require('admin-bro')
-const AdminBroExpress = require('admin-bro-expressjs')
-const adminBro = new AdminBro({
-  databases: [],
-  rootPath: '/',
-});
-const router = AdminBroExpress.buildRouter(adminBro)
-app.use(adminBro.options.rootPath, router);
-// ***************
+
 
 const Router = express.Router();
 
@@ -46,6 +36,25 @@ app.set("view engine", "html");
 
 const client = new pg.Client(process.env.DATABASE_URL);
 // const client = new pg.Client({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+
+// ****************
+// // const pgDB = Client.connect
+// const AdminBro = require('admin-bro')
+// const AdminBroSequelize = require('@admin-bro/sequelize')
+// const AdminBroExpress = require('admin-bro-expressjs')
+// AdminBro.registerAdapter(AdminBroSequelize)
+
+// const db = require("../DataBase/schema.sql");
+// const adminBro = new AdminBro({
+//   databases: [db],
+//   rootPath: '/',
+// });
+// const router = AdminBroExpress.buildRouter(adminBro)
+// app.use(adminBro.options.rootPath, router);
+// ***************
+
+
+
 
 // JWT configuration
 
@@ -90,7 +99,6 @@ app.post("/sign_in",handleSignIn);
 
 // functions
 function handleSearchBar(req, res) {
-
   // Getting Data from Country API
   // console.log(req.body)
   const countryName = req.body.myCountry;
@@ -100,16 +108,17 @@ function handleSearchBar(req, res) {
     data.body.map(element => {
       countryNames.push(new Country(element));
     })
-    console.log(countryNames);
-    const query = 'SELECT * FROM Service WHERE country=$1 AND title=$2';
+    console.log("countryNames",countryNames[0].country);
+    const query = 'SELECT * FROM Service WHERE country=$1 OR title=$2';
     let safeValue = [countryNames[0].country, req.body.WorkField];
     client.query(query, safeValue).then(data => {
-      console.log('Search results from DB: '+ data.rows);
-      res.render('searchResults', { "data": data.rows })
+      console.log('Search results from DB: ', data.rows[0]);
+      res.json({'searchResults': data.rows})
     }).catch(err =>{
       console.log(`error in getting search results from DB ${err}`);
     })
   }).catch(err => {
+    res.json("Please enter a country name");
     console.log(`error in getting the Countries names from the API ${err}`)
   })
 

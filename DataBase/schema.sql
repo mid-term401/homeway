@@ -32,7 +32,6 @@ CREATE TABLE IF NOT EXISTS host (
   rating int,
   profile_image text,
   token text
-
 );
 CREATE TABLE IF NOT EXISTS sign_in (
   id SERIAL PRIMARY KEY,
@@ -58,7 +57,6 @@ CREATE TABLE IF NOT EXISTS Service (
   profile_image text,
   host_id INT ,
   FOREIGN KEY (host_id) REFERENCES host (id) ON DELETE CASCADE
-
 );
 -- ALTER TABLE service ADD COLUMN host_id INT REFERENCES host(id)
 CREATE TABLE IF NOT EXISTS admin (
