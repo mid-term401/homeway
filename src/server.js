@@ -83,6 +83,7 @@ app.put("/volunteer/:id", bearerVolunteer, updateVolunteerProfile);
 app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost);
 app.get("/volunteer/:id/host/:id/service/:id", bearerVolunteer, handleVolunteerViewingHostService);
 
+
 app.get("/host/:id", bearerHost, handleGetHostProfile);
 app.put("/host/:id", bearerHost, updateHostProfile);
 app.get("/host/:id/service", bearerHost, handleGetHostService);
