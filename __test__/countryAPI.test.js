@@ -6,7 +6,6 @@ const request = superTest(server);
 
 
 describe('Server', () => {
-    it('')
     it('handle invalid routes', async () => {
         const response = await request.get('/random');
         expect(response.status).toEqual(404);
