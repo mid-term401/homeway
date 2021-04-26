@@ -10,7 +10,6 @@ const secretKey = process.env.SECRET_KEY;
 
 // functions
 async function handleSearchBar(req, res) {
-  console.log(req.body);
   // console.log("From searchBar", req.user, req.token);
   const countryName = req.body.myCountry;
   const countryURL = `https://restcountries.eu/rest/v2/name/${countryName}`;
@@ -119,7 +118,6 @@ async function handleVolunteerSignup(req, res) {
   try {
     // Checking if the volunteer exists in the DB
     let results = 0;
-    console.log(req.body);
     const userName = req.body.username;
 
     results = await checkVolunteerExists(userName);
@@ -127,8 +125,6 @@ async function handleVolunteerSignup(req, res) {
     if (results.length === 0) {
       results = await checkHostExists(userName);
     }
-
-    console.log("results", results);
 
     if (results.length === 0) {
       const formData = req.body;
@@ -250,7 +246,6 @@ async function checkHostEmail(email) {
   let searchQ = `select * from host where email = $1`;
   let safeValues = [email];
   let data = await client.query(searchQ, safeValues);
-  console.log(data.rowCount);
   if (data.rowCount === 0) {
     return false;
   } else return true;
@@ -260,7 +255,6 @@ async function checkVolunteerUserName(username) {
   let searchQ = `select * from volunteer where user_name = $1`;
   let safeValues = [username];
   let data = await client.query(searchQ, safeValues);
-  console.log(data.rowCount);
   if (data.rowCount === 0) {
     return false;
   } else return true;
@@ -269,7 +263,6 @@ async function checkVolunteerEmail(email) {
   let searchQ = `select * from volunteer where email = $1`;
   let safeValues = [email];
   let data = await client.query(searchQ, safeValues);
-  console.log(data.rowCount);
   if (data.rowCount === 0) {
     return false;
   } else return true;
@@ -358,7 +351,6 @@ async function updateHostProfile(req, res) {
   res.json(data.rows);
 }
 async function createServiceProfile(req, res) {
-  console.log("create id ", req.params.id);
   let host_id = req.params.id;
   let selectQ = `insert into service  (title,description,country,
   type,details,duration,from_date,to_date,working_hours,
@@ -388,7 +380,6 @@ async function createServiceProfile(req, res) {
 
 async function updateServiceProfile(req, res) {
   let id = req.params.id;
-  console.log(req.body);
   let selectQ = `update service set title=$1,description=$2,country=$3,
   type=$4,details=$5,duration=$6,from_date=$7,to_date=$8,working_hours=$9,
   working_days=$10,minumim_age=$11,address=$12,profile_image=$13
@@ -442,7 +433,6 @@ async function handleVolunteerViewingHostService(req, res) {
 async function handleGetHostProfile(req, res) {
   let id = req.params.id;
   let newValue = req.body;
-  console.log(newValue);
   let selectQ = `select * from host where id = $1;`;
   let safeValues = [id];
   let data = await client.query(selectQ, safeValues);
@@ -451,7 +441,6 @@ async function handleGetHostProfile(req, res) {
 async function handleAdminHost(req, res) {
   let id = req.params.id;
   let newValue = req.body;
-  console.log(newValue);
   let selectQ = `select * from host where id = $1;`;
   let safeValues = [id];
   let data = await client.query(selectQ, safeValues);
@@ -467,7 +456,6 @@ async function handleGetHostService(req, res) {
 }
 async function handleOneHostService(req, res) {
   let id = req.params.id;
-  console.log(req.params);
   let selectQ = `select * from service where id = $1;`;
   let safeValues = [id];
   let data = await client.query(selectQ, safeValues);
@@ -475,7 +463,6 @@ async function handleOneHostService(req, res) {
 }
 async function handleAdminHostService(req, res) {
   let id = req.params.id;
-  console.log(req.params);
   let selectQ = `select * from service where id = $1;`;
   let safeValues = [id];
   let data = await client.query(selectQ, safeValues);
@@ -497,17 +484,16 @@ async function deleteServiceAdmin(req, res) {
   let host_id = await client.query(selectHost, safeValues);
   let selectQ = `delete from service where id = $1;`;
   let data = await client.query(selectQ, safeValues);
-  res.redirect(`/superuser/host/${host_id.rows[0].host_id}`);
+  res.redirect(`/superuser`);
 }
 async function deleteHostProfile(req, res) {
   let id = req.params.id;
   let selectQ = `delete from host where id = $1;`;
   let data = await client.query(selectQ, [id]);
-  res.redirect(`/superuser/hosts/${host_id.rows[0].host_id}`);
+  res.redirect(`/superuser`);
 }
 async function deleteVolunteerProfile(req, res) {
   let id = req.params.id;
-  console.log(id);
   let selectQ = `delete from volunteer where id = $1;`;
   let data = await client.query(selectQ, [id]);
   res.redirect(`/superuser/volunteer/${id}`);
@@ -523,18 +509,13 @@ async function handleHostViewingVolunteer(req, res) {
 
 async function handleAdmin(req, res) {
   try {
-    console.log(req.user);
-
-    console.log("hre");
     if (req.user.success === true) {
-      console.log("Im here");
       const payload = {
         id: req.user.userData.id,
         name: req.user.userData.user_name,
       };
       const token = jwt.sign(payload, secretKey);
 
-      // console.log("token", token);
       // const refreshToken = jwt.sign(payload, process.env.SECRET_KEY_REFRESHER)
 
       //Check if host ot volunteer
@@ -548,14 +529,11 @@ async function handleAdmin(req, res) {
       // Store the refresh token in DB
       const safeValues = [token, req.user.userData.user_name];
       await client.query(updateQuery, safeValues);
-      console.log(`Test`);
       // Get all the data
       let volunteers = await client.query(searchVolunteers);
       let hosts = await client.query(searchHosts);
       let services = await client.query(searchServices);
-      console.log("volunteers", volunteers.rows);
-      console.log("hosts", hosts.rows);
-      console.log("services", services.rows);
+
       res.json({
         volunteers: volunteers.rows,
         hosts: hosts.rows,
@@ -579,7 +557,6 @@ async function checkHostUserName(username) {
   let searchQ = `select * from host where user_name = $1`;
   let safeValues = [username];
   let data = await client.query(searchQ, safeValues);
-  console.log(data.rowCount);
   if (data.rowCount === 0) {
     return false;
   } else return true;
@@ -615,7 +592,6 @@ async function checkHostUserName(username) {
 
 async function addAdmin(req, res) {
   const adminData = req.body;
-  console.log(adminData);
   const insertQuery =
     "insert into admin(user_name, first_name, last_name, password, email) values($1, $2, $3, $4, $5) returning *;";
   const hashedPassword = await bcrypt.hash(req.body.password, 10);

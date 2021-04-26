@@ -257,9 +257,9 @@ app.get("/superuser/volunteer/:id", basicAdmin, handleAdminVolunteer);
 app.put("/superuser/volunteer/:id", basicAdmin, updateVolunteerProfile);
 app.delete("/superuser/volunteer/:id", basicAdmin, deleteVolunteerProfile);
 
-app.get("/superuser/host/:id/service/:id", basicAdmin, handleAdminHostService);
-app.put("/superuser/host/:id/service/:id", basicAdmin, updateServiceProfile);
-app.delete("/superuser/host/:id/service/:id", basicAdmin, deleteServiceAdmin);
+app.get("/superuser/service/:id", basicAdmin, handleAdminHostService);
+app.put("/superuser/service/:id", basicAdmin, updateServiceProfile);
+app.delete("/superuser/service/:id", basicAdmin, deleteServiceAdmin);
 
 // function verifyToken(req, res, next) {
 
