@@ -2,6 +2,10 @@
 
 // 3rd Party Resources
 const express = require("express");
+// const socketio = require('socket.io')
+// const Filter = require('bad-words')
+const http = require('http')
+
 
 const client = require("../DataBase/data");
 
@@ -36,6 +40,8 @@ const basicAdmin = require("./auth/middleware/basicAdmin");
 const bearerAuth = require("./auth/middleware/bearer");
 const bearerVolunteer = require("./auth/middleware/bearerVolunteer");
 const bearerHost = require("./auth/middleware/bearerHost");
+const { generateMessage } = require('./utils/messages')
+const { addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users')
 
 
 const {
@@ -79,20 +85,18 @@ const {
 
 // App Level MW
 app.use(cors());
-
+const server = http.createServer(app)
+// const io = socketio(server)
 //AOuth 
 const {OAuth2Client} = require('google-auth-library');
 const CLIENT_ID = '828937553057-8gc5eli5vu3v2oig6rphup580sg33lj4.apps.googleusercontent.com'
 const Gclient = new OAuth2Client(CLIENT_ID);
 
 
-// app.set('view engine', 'ejs');
-// // app.use(express.json());
-// // app.use(cookieParser());
-// app.use(express.static('public'));
 
 
-// Middleware
+
+// Oauth
 
 app.get('/', (req, res)=>{
   res.render('index')
@@ -164,12 +168,68 @@ function checkAuthenticated(req, res, next){
     })
 
 }
+
+// ****************************SOCKETIO*******************************
+
+// io.on('connection', (socket) => {
+//   console.log('New WebSocket connection')
+
+//   socket.on('join', (options, callback) => {
+//       const { error, user } = addUser({ id: socket.id, ...options })
+
+//       if (error) {
+//           return callback(error)
+//       }
+
+//       socket.join(user.room)
+
+//       socket.emit('message', generateMessage('Admin', 'Welcome!'))
+//       socket.broadcast.to(user.room).emit('message', generateMessage('Admin', `${user.username} has joined!`))
+//       io.to(user.room).emit('roomData', {
+//           room: user.room,
+//           users: getUsersInRoom(user.room)
+//       })
+
+//       callback()
+//   })
+
+//   socket.on('sendMessage', (message, callback) => {
+//       const user = getUser(socket.id)
+//       const filter = new Filter()
+
+//       if (filter.isProfane(message)) {
+//           return callback('Profanity is not allowed!')
+//       }
+
+//       io.to(user.room).emit('message', generateMessage(user.username, message))
+//       callback()
+//   })
+
+
+
+//   socket.on('disconnect', () => {
+//       const user = removeUser(socket.id)
+
+//       if (user) {
+//           io.to(user.room).emit('message', generateMessage('Admin', `${user.username} has left!`))
+//           io.to(user.room).emit('roomData', {
+//               room: user.room,
+//               users: getUsersInRoom(user.room)
+//           })
+//       }
+//   })
+// })
+
+
+// *******************************************************************
+
+
+
 // Routes
 app.get("/volunteer/:id", bearerVolunteer, handleGetVolunteerProfile);
 app.put("/volunteer/:id", bearerVolunteer, updateVolunteerProfile);
 app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost);
 app.get("/volunteer/:id/host/:id/service/:id", bearerVolunteer, handleVolunteerViewingHostService);
-
 
 app.get("/host/:id", bearerHost, handleGetHostProfile);
 app.put("/host/:id", bearerHost, updateHostProfile);
@@ -198,8 +258,6 @@ app.get("/sign_in", handleSignInForm);
 app.post("/sign_in", basicAuth, handleSignIn);
 
 
-
-// app.post("/superuser" , addAdmin);
 
 
 // function verifyToken(req, res, next) {
@@ -245,6 +303,9 @@ app.post("/sign_in", basicAuth, handleSignIn);
 
 app.post("/superuser", basicAdmin, handleAdmin);
 
+// app.post("/superuser" , addAdmin);
+
+
 //admin\\
 
 app.get("/superuser/host/:id", basicAdmin, handleAdminHost);
@@ -266,14 +327,10 @@ app.delete("/superuser/host/:id/service/:id", basicAdmin, deleteServiceAdmin);
 // }
 
 // Catchalls
-app.get('/error', (req, res) => {
-  throw new Error('Server Error ');
-});
-app.use('*',notFound);
+app.use(notFound);
 app.use(errorHandler);
 
 module.exports = {
-  server:app,
   start: (PORT) => {
     client
       .connect()
