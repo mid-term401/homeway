@@ -1,40 +1,45 @@
-"use strict"
+"use strict";
 
 const client = require("../../../DataBase/data");
 const superagent = require("superagent");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const base64 = require('base-64');
+const base64 = require("base-64");
 require("dotenv").config();
 const secretKey = process.env.SECRET_KEY;
-
 
 // functions
 async function handleSearchBar(req, res) {
   // console.log("From searchBar", req.user, req.token);
   const countryName = req.body.myCountry;
   const countryURL = `https://restcountries.eu/rest/v2/name/${countryName}`;
-  return superagent.get(countryURL).then(data => {
-    let countryNames = [];
-    data.body.map(element => {
-      countryNames.push(new Country(element));
+  return superagent
+    .get(countryURL)
+    .then((data) => {
+      let countryNames = [];
+      data.body.map((element) => {
+        countryNames.push(new Country(element));
+      });
+      const query = "SELECT * FROM Service WHERE country=$1 OR title=$2";
+      let safeValue = [countryNames[0].country, req.body.WorkField];
+      client
+        .query(query, safeValue)
+        .then((data) => {
+          console.log(data.rows);
+          res.json({ searchResults: data.rows });
+        })
+        .catch((err) => {
+          console.log(`error in getting search results from DB ${err}`);
+        });
     })
-    const query = 'SELECT * FROM Service WHERE country=$1 OR title=$2';
-    let safeValue = [countryNames[0].country, req.body.WorkField];
-    client.query(query, safeValue).then(data => {
-      console.log(data.rows);
-      res.json({ 'searchResults': data.rows })
-    }).catch(err => {
-      console.log(`error in getting search results from DB ${err}`);
-    })
-  }).catch(err => {
-    res.json("Please enter a country name");
-    console.log(`error in getting the Countries names from the API ${err}`)
-  })
+    .catch((err) => {
+      res.json("Please enter a country name");
+      console.log(`error in getting the Countries names from the API ${err}`);
+    });
 }
 
 function handleDisplaySearch(req, res) {
-  res.render('searchResults')
+  res.render("searchResults");
 }
 
 async function handleHome(req, res) {
@@ -62,11 +67,13 @@ function handleSignInForm(req, res) {
   res.render("signin");
 }
 
-
 async function handleSignIn(req, res) {
   try {
     if (req.user.success === true) {
-      const payload = { id: req.user.userData.id, name: req.user.userData.user_name, }
+      const payload = {
+        id: req.user.userData.id,
+        name: req.user.userData.user_name,
+      };
       const token = jwt.sign(payload, secretKey);
 
       // console.log("token", token);
@@ -76,29 +83,30 @@ async function handleSignIn(req, res) {
 
       let updateQuery;
       if (!req.user.userData.category) {
-        updateQuery =
-          "update volunteer set token = $1 where user_name = $2;";
+        updateQuery = "update volunteer set token = $1 where user_name = $2;";
       } else {
-        updateQuery =
-          "update host set token = $1 where user_name = $2;";
+        updateQuery = "update host set token = $1 where user_name = $2;";
       }
       console.log(`********************************`);
       // Store the refresh token in DB
       const safeValues = [token, req.user.userData.user_name];
-      client.query(updateQuery, safeValues)
+      client
+        .query(updateQuery, safeValues)
         .then(() => {
           console.log(`Updated the token`);
           res.json({
             username: req.user.userData.user_name,
-            token: token
-          })
+            token: token,
+          });
         })
-        .catch(error => {
-          res.json('Error while updating the refresh token', error);
-        })
-      res.setHeader("set-cookie", [`JWT_TOKEN=${token}; httponly; samesite=lax`])
+        .catch((error) => {
+          res.json("Error while updating the refresh token", error);
+        });
+      res.setHeader("set-cookie", [
+        `JWT_TOKEN=${token}; httponly; samesite=lax`,
+      ]);
     } else {
-      res.json("Error Incorrect username or password")
+      res.json("Error Incorrect username or password");
     }
     // }
   } catch (e) {
@@ -147,7 +155,7 @@ async function handleVolunteerSignup(req, res) {
         .catch((error) => {
           // console.log('Error while creating the a volunteer', error)
           res.json("Error, Volunteer was not created successfully");
-        })
+        });
     } else {
       res.json("Error Volunteer already exists");
     }
@@ -194,9 +202,9 @@ async function handleHostSignup(req, res) {
           console.log(`Host added to the database`);
           res.json("success Host created successfully");
         })
-        .catch(error => {
+        .catch((error) => {
           res.json("Error Host was not created successfully");
-        })
+        });
     } else {
       res.json("Error Host already exists");
     }
@@ -269,6 +277,12 @@ async function checkVolunteerEmail(email) {
 }
 
 async function handleGetVolunteerProfile(req, res) {
+  let id = req.params.id;
+  let selectQ = `select * from volunteer where id = $1;`;
+  let data = await client.query(selectQ, [id]);
+  res.json(data.rows[0]);
+}
+async function handleAdminVolunteer(req, res) {
   let id = req.params.id;
   let selectQ = `select * from volunteer where id = $1;`;
   let data = await client.query(selectQ, [id]);
@@ -405,11 +419,11 @@ async function handleVolunteerViewingHost(req, res) {
 
   let selectHostQuery = `select * from host where id =$1;`;
   let host = await client.query(selectHostQuery, [id]);
-  let selectServiceQuery = `select * from service where host_id =$1;`
+  let selectServiceQuery = `select * from service where host_id =$1;`;
   let services = await client.query(selectServiceQuery, [id]);
   res.json({
     host: host.rows[0],
-    services: services.rows
+    services: services.rows,
   });
 }
 
@@ -419,9 +433,9 @@ async function handleVolunteerViewingHostService(req, res) {
   let selectHost_idQuery = `select host_id from service where id = $1;`;
   let host = await client.query(selectHost_idQuery, [id]);
 
-  let host_id = host.rows[0].host_id
+  let host_id = host.rows[0].host_id;
   let selectServiceQuery = `select * from service where host_id = $1 AND id = $2;`;
-  let safeValues = [host_id, id]
+  let safeValues = [host_id, id];
   let service = await client.query(selectServiceQuery, safeValues);
   res.json(service.rows[0]);
 }
@@ -434,6 +448,15 @@ async function handleGetHostProfile(req, res) {
   let safeValues = [id];
   let data = await client.query(selectQ, safeValues);
   res.json(data.rows);
+}
+async function handleAdminHost(req, res) {
+  let id = req.params.id;
+  let newValue = req.body;
+  console.log(newValue);
+  let selectQ = `select * from host where id = $1;`;
+  let safeValues = [id];
+  let data = await client.query(selectQ, safeValues);
+  res.json(data.rows[0]);
 }
 async function handleGetHostService(req, res) {
   let id = req.params.id;
@@ -451,15 +474,44 @@ async function handleOneHostService(req, res) {
   let data = await client.query(selectQ, safeValues);
   res.json(data.rows);
 }
+async function handleAdminHostService(req, res) {
+  let id = req.params.id;
+  console.log(req.params);
+  let selectQ = `select * from service where id = $1;`;
+  let safeValues = [id];
+  let data = await client.query(selectQ, safeValues);
+  res.json(data.rows);
+}
 async function deleteServiceProfile(req, res) {
   let id = req.params.id;
-
   let safeValues = [id];
   let selectHost = `select host_id from service where id =$1;`;
   let host_id = await client.query(selectHost, safeValues);
   let selectQ = `delete from service where id = $1;`;
   let data = await client.query(selectQ, safeValues);
   res.redirect(`/host/${host_id.rows[0].host_id}/service`);
+}
+async function deleteServiceAdmin(req, res) {
+  let id = req.params.id;
+  let safeValues = [id];
+  let selectHost = `select host_id from service where id =$1;`;
+  let host_id = await client.query(selectHost, safeValues);
+  let selectQ = `delete from service where id = $1;`;
+  let data = await client.query(selectQ, safeValues);
+  res.redirect(`/superuser/host/${host_id.rows[0].host_id}`);
+}
+async function deleteHostProfile(req, res) {
+  let id = req.params.id;
+  let selectQ = `delete from host where id = $1;`;
+  let data = await client.query(selectQ, [id]);
+  res.redirect(`/superuser/hosts/${host_id.rows[0].host_id}`);
+}
+async function deleteVolunteerProfile(req, res) {
+  let id = req.params.id;
+  console.log(id);
+  let selectQ = `delete from volunteer where id = $1;`;
+  let data = await client.query(selectQ, [id]);
+  res.redirect(`/superuser/volunteer/${id}`);
 }
 
 async function handleHostViewingVolunteer(req, res) {
@@ -472,8 +524,12 @@ async function handleHostViewingVolunteer(req, res) {
 
 async function handleAdmin(req, res) {
   try {
+    console.log("hre");
     if (req.user.success === true) {
-      const payload = { id: req.user.userData.id, name: req.user.userData.user_name, }
+      const payload = {
+        id: req.user.userData.id,
+        name: req.user.userData.user_name,
+      };
       const token = jwt.sign(payload, secretKey);
 
       // console.log("token", token);
@@ -498,15 +554,17 @@ async function handleAdmin(req, res) {
       console.log("volunteers", volunteers.rows);
       console.log("hosts", hosts.rows);
       console.log("services", services.rows);
-          res.json({
-            volunteers: volunteers.rows,
-            hosts: hosts.rows,
-            services: services.rows
-          })
-        
-      res.setHeader("set-cookie", [`JWT_TOKEN=${token}; httponly; samesite=lax`])
+      res.json({
+        volunteers: volunteers.rows,
+        hosts: hosts.rows,
+        services: services.rows,
+      });
+
+      res.setHeader("set-cookie", [
+        `JWT_TOKEN=${token}; httponly; samesite=lax`,
+      ]);
     } else {
-      res.json("Error Incorrect username or password")
+      res.json("Error Incorrect username or password");
     }
     // }
   } catch (e) {
@@ -553,18 +611,23 @@ async function checkVolunteerEmail(email) {
   } else return true;
 }
 
-
 // async function addAdmin(req, res) {
 //   const adminData = req.body;
 //   console.log(adminData);
 //   const insertQuery = "insert into admin(user_name, first_name, last_name, password, email) values($1, $2, $3, $4, $5) returning *;";
 //   const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-//   const safeValues = [adminData.user_name, adminData.first_name, adminData.last_name, hashedPassword, adminData.email]
-//   let admin = await client.query(insertQuery, safeValues);
-//   console.log(`**************************************`);
-//   console.log("Added a new admin", admin);
-// }
+  const safeValues = [
+    adminData.user_name,
+    adminData.first_name,
+    adminData.last_name,
+    hashedPassword,
+    adminData.email,
+  ];
+  let admin = await client.query(insertQuery, safeValues);
+  console.log(`**************************************`);
+  console.log("Added a new admin", admin);
+}
 
 //constructors
 function Country(data) {
@@ -601,5 +664,11 @@ module.exports = {
   deleteServiceProfile,
   handleHostViewingVolunteer,
   handleAdmin,
-  // addAdmin
-}
+  handleAdminHost,
+  handleAdminVolunteer,
+  handleAdminHostService,
+  deleteHostProfile,
+  deleteVolunteerProfile,
+  deleteServiceAdmin,
+  // addAdmin,
+};
