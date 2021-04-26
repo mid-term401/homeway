@@ -12,11 +12,8 @@ module.exports = async (req, res, next) => {
       let basic = req.headers.authorization.split(' ').pop();
       let [user, pass] = base64.decode(basic).split(':');
 
-      req.user = await checkVolunteerExists(user);
+      req.user = await checkAdminExists(user);
 
-      if (req.user.length === 0) {
-        req.user = await checkHostExists(user);
-      }
       if (req.user.length === 0) {
         res.json("Error Incorrect username or password");
       } else {
@@ -29,30 +26,17 @@ module.exports = async (req, res, next) => {
       }
     }
   } catch (e) {
-    res.json("Invalid Login");
+    res.json("Invalid Admin Login");
   }
 }
 
 
-async function checkVolunteerExists(userName) {
+async function checkAdminExists(userName) {
   try {
-    const searchQuery = "select * from volunteer where user_name = $1 ;";
+    const searchQuery = "select * from admin where user_name = $1 ;";
     let data = await client
       .query(searchQuery, [userName])
     return data.rows;
-  } catch (e) {
-    console.log(e.message);
-  }
-}
-
-async function checkHostExists(userName) {
-  try {
-    const searchQuery = "select * from host where user_name = $1;";
-
-    let data = await client
-      .query(searchQuery, [userName])
-    return data.rows;
-
   } catch (e) {
     console.log(e.message);
   }
