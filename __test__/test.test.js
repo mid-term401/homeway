@@ -101,6 +101,7 @@ describe("Server", () => {
   it("should successfully get get the host profile", async () => {
     const res = await request.get("/volunteers/sign_up");
     expect(res.status).toBe(200);
+    
   });
   it("should successfully get get the host profile", async () => {
     const res = await request.get("/sign_up");
