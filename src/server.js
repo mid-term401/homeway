@@ -3,7 +3,7 @@
 // 3rd Party Resources
 const express = require("express");
 
-const client = require("../DataBase/data")
+const client = require("../DataBase/data");
 
 const cors = require("cors");
 require("dotenv").config();
@@ -20,8 +20,6 @@ const notFound = require("./error-handlers/404.js");
 const app = express();
 app.use(cors());
 
-
-
 const Router = express.Router();
 
 app.use(cookieParser());
@@ -32,14 +30,15 @@ app.set("views", __dirname + "/../public/views");
 app.engine("html", require("ejs").renderFile);
 app.set("view engine", "html");
 
-// Requiring files 
+// Requiring files
 const basicAuth = require("./auth/middleware/basic");
 const basicAdmin = require("./auth/middleware/basicAdmin");
 const bearerAuth = require("./auth/middleware/bearer");
 const bearerVolunteer = require("./auth/middleware/bearerVolunteer");
 const bearerHost = require("./auth/middleware/bearerHost");
 
-const {  handleSearchBar,
+const {
+  handleSearchBar,
   handleDisplaySearch,
   handleHome,
   handleHostForm,
@@ -61,15 +60,19 @@ const {  handleSearchBar,
   deleteServiceProfile,
   handleHostViewingVolunteer,
   handleAdmin,
-  // addAdmin
+  handleAdminHost,
+  handleAdminVolunteer,
+  handleAdminHostService,
+  deleteHostProfile,
+  deleteVolunteerProfile,
+  deleteServiceAdmin,
+
+  // addAdmin,
 } = require("./auth/models/users");
-
-
 
 // Database
 
 // const client = new pg.Client(process.env.DATABASE_URL);
-
 
 // const secretKey = process.env.SECRET_KEY;
 // const secretKeyRefresher = process.env.SECRET_KEY_REFRESHER;
@@ -81,7 +84,11 @@ app.use(cors());
 app.get("/volunteer/:id", bearerVolunteer, handleGetVolunteerProfile);
 app.put("/volunteer/:id", bearerVolunteer, updateVolunteerProfile);
 app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost);
-app.get("/volunteer/:id/host/:id/service/:id", bearerVolunteer, handleVolunteerViewingHostService);
+app.get(
+  "/volunteer/:id/host/:id/service/:id",
+  bearerVolunteer,
+  handleVolunteerViewingHostService
+);
 
 app.get("/host/:id", bearerHost, handleGetHostProfile);
 app.put("/host/:id", bearerHost, updateHostProfile);
@@ -109,24 +116,31 @@ app.get("/sign_in", handleSignInForm);
 
 app.post("/sign_in", basicAuth, handleSignIn);
 
-app.post("/superuser", basicAdmin , handleAdmin);
+app.post("/superuser", basicAdmin, handleAdmin);
 
-// app.post("/superuser" , addAdmin);
+//admin\\
 
+app.get("/superuser/host/:id", basicAdmin, handleAdminHost);
+app.put("/superuser/host/:id", basicAdmin, updateHostProfile);
+app.delete("/superuser/host/:id", basicAdmin, deleteHostProfile);
+
+app.get("/superuser/volunteer/:id", basicAdmin, handleAdminVolunteer);
+app.put("/superuser/volunteer/:id", basicAdmin, updateVolunteerProfile);
+app.delete("/superuser/volunteer/:id", basicAdmin, deleteVolunteerProfile);
+
+app.get("/superuser/host/:id/service/:id", basicAdmin, handleAdminHostService);
+app.put("/superuser/host/:id/service/:id", basicAdmin, updateServiceProfile);
+app.delete("/superuser/host/:id/service/:id", basicAdmin, deleteServiceAdmin);
+
+// app.post("/superuser", addAdmin);
 
 // function verifyToken(req, res, next) {
 
 // }
 
-
 // Catchalls
 app.use(notFound);
 app.use(errorHandler);
-
-
-
-
-
 
 module.exports = {
   start: (PORT) => {
@@ -141,4 +155,4 @@ module.exports = {
         console.log("Error while connecting to the DB ..", error);
       });
   },
-}
+};
