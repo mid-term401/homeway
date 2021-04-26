@@ -4,8 +4,7 @@
 const express = require("express");
 // const socketio = require('socket.io')
 // const Filter = require('bad-words')
-const http = require('http')
-
+const http = require("http");
 
 const client = require("../DataBase/data");
 
@@ -40,9 +39,13 @@ const basicAdmin = require("./auth/middleware/basicAdmin");
 const bearerAuth = require("./auth/middleware/bearer");
 const bearerVolunteer = require("./auth/middleware/bearerVolunteer");
 const bearerHost = require("./auth/middleware/bearerHost");
-const { generateMessage } = require('./utils/messages')
-const { addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users')
-
+const { generateMessage } = require("./utils/messages");
+const {
+  addUser,
+  removeUser,
+  getUser,
+  getUsersInRoom,
+} = require("./utils/users");
 
 const {
   handleSearchBar,
@@ -85,88 +88,80 @@ const {
 
 // App Level MW
 app.use(cors());
-const server = http.createServer(app)
+const server = http.createServer(app);
 // const io = socketio(server)
-//AOuth 
-const {OAuth2Client} = require('google-auth-library');
-const CLIENT_ID = '828937553057-8gc5eli5vu3v2oig6rphup580sg33lj4.apps.googleusercontent.com'
+//AOuth
+const { OAuth2Client } = require("google-auth-library");
+const CLIENT_ID =
+  "828937553057-8gc5eli5vu3v2oig6rphup580sg33lj4.apps.googleusercontent.com";
 const Gclient = new OAuth2Client(CLIENT_ID);
-
-
-
-
 
 // Oauth
 
-app.get('/', (req, res)=>{
-  res.render('index')
-})
+app.get("/", (req, res) => {
+  res.render("index");
+});
 
-app.get('/login', (req,res)=>{
-  res.render('login');
-})
+app.get("/login", (req, res) => {
+  res.render("login");
+});
 
-app.post('/login', (req,res)=>{
+app.post("/login", (req, res) => {
   let token = req.body.token;
 
   async function verify() {
-      const ticket = await Gclient.verifyIdToken({
-          idToken: token,
-          audience: CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
-      });
-      const payload = ticket.getPayload();
-      const userid = payload['sub'];
-    }
-    verify()
-    .then(()=>{
-        res.cookie('session-token', token);
-        res.send('success')
+    const ticket = await Gclient.verifyIdToken({
+      idToken: token,
+      audience: CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
+    });
+    const payload = ticket.getPayload();
+    const userid = payload["sub"];
+  }
+  verify()
+    .then(() => {
+      res.cookie("session-token", token);
+      res.send("success");
     })
     .catch(console.error);
+});
 
-})
-
-app.get('/profile', checkAuthenticated, (req, res)=>{
+app.get("/profile", checkAuthenticated, (req, res) => {
   let user = req.user;
-  res.render('profile', {user});
-})
+  res.render("profile", { user });
+});
 
-app.get('/protectedRoute', checkAuthenticated, (req,res)=>{
-  res.send('This route is protected')
-})
+app.get("/protectedRoute", checkAuthenticated, (req, res) => {
+  res.send("This route is protected");
+});
 
-app.get('/logout', (req, res)=>{
-  res.clearCookie('session-token');
-  res.redirect('/login')
+app.get("/logout", (req, res) => {
+  res.clearCookie("session-token");
+  res.redirect("/login");
+});
 
-})
-
-
-function checkAuthenticated(req, res, next){
-
-  let token = req.cookies['session-token'];
+function checkAuthenticated(req, res, next) {
+  let token = req.cookies["session-token"];
   console.log(token);
 
   let user = {};
   async function verify() {
-      const ticket = await Gclient.verifyIdToken({
-          idToken: token,
-          audience: CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
-      });
-      const payload = ticket.getPayload();
-      user.name = payload.name;
-      user.email = payload.email;
-      user.picture = payload.picture;
-    }
-    verify()
-    .then(()=>{
-        req.user = user;
-        next();
+    const ticket = await Gclient.verifyIdToken({
+      idToken: token,
+      audience: CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
+    });
+    const payload = ticket.getPayload();
+    user.name = payload.name;
+    user.email = payload.email;
+    user.picture = payload.picture;
+  }
+  verify()
+    .then(() => {
+      req.user = user;
+      next();
     })
-    .catch(err=>{
-        res.redirect('/login')
-    })
-
+    .catch((err) => {
+      res.redirect("/login");
+    });
 }
 
 // ****************************SOCKETIO*******************************
@@ -205,8 +200,6 @@ function checkAuthenticated(req, res, next){
 //       callback()
 //   })
 
-
-
 //   socket.on('disconnect', () => {
 //       const user = removeUser(socket.id)
 
@@ -220,51 +213,8 @@ function checkAuthenticated(req, res, next){
 //   })
 // })
 
-
 // *******************************************************************
 
-
-
-// Routes
-app.get("/volunteer/:id", bearerVolunteer, handleGetVolunteerProfile);
-app.put("/volunteer/:id", bearerVolunteer, updateVolunteerProfile);
-app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost);
-app.get("/volunteer/:id/host/:id/service/:id", bearerVolunteer, handleVolunteerViewingHostService);
-
-app.get("/host/:id", bearerHost, handleGetHostProfile);
-app.put("/host/:id", bearerHost, updateHostProfile);
-app.get("/host/:id/service", bearerHost, handleGetHostService);
-app.post("/host/:id/service", bearerHost, createServiceProfile);
-app.get("/host/:id/service/:id", bearerHost, handleOneHostService);
-app.put("/host/:id/service/:id", bearerHost, updateServiceProfile);
-app.delete("/host/:id/service/:id", bearerHost, deleteServiceProfile);
-app.get("/host/:id/volunteer/:id", bearerHost, handleHostViewingVolunteer);
-
-// app.get("/", handleHome);
-
-app.get("/volunteers/sign_up", handleVolunteerForm);
-
-app.post("/volunteers/sign_up", handleVolunteerSignup);
-
-app.get("/hosts/sign_up", handleHostForm);
-
-app.post("/searchResults", bearerAuth, handleSearchBar);
-app.get("/searchResults", handleDisplaySearch);
-
-app.post("/hosts/sign_up", handleHostSignup);
-
-app.get("/sign_in", handleSignInForm);
-
-app.post("/sign_in", basicAuth, handleSignIn);
-
-
-
-
-// function verifyToken(req, res, next) {
-
-// }
-
-////////////////////////////////////
 // Routes
 app.get("/volunteer/:id", bearerVolunteer, handleGetVolunteerProfile);
 app.put("/volunteer/:id", bearerVolunteer, updateVolunteerProfile);
@@ -284,27 +234,18 @@ app.put("/host/:id/service/:id", bearerHost, updateServiceProfile);
 app.delete("/host/:id/service/:id", bearerHost, deleteServiceProfile);
 app.get("/host/:id/volunteer/:id", bearerHost, handleHostViewingVolunteer);
 
-// app.get("/", handleHome);
+app.get("/", handleHome);
 
 app.get("/volunteers/sign_up", handleVolunteerForm);
-
 app.post("/volunteers/sign_up", handleVolunteerSignup);
-
 app.get("/hosts/sign_up", handleHostForm);
+app.post("/hosts/sign_up", handleHostSignup);
+app.get("/sign_in", handleSignInForm);
+app.post("/sign_in", basicAuth, handleSignIn);
+app.post("/superuser", basicAdmin, handleAdmin);
 
 app.post("/searchResults", handleSearchBar);
 app.get("/searchResults", handleDisplaySearch);
-
-app.post("/hosts/sign_up", handleHostSignup);
-
-app.get("/sign_in", handleSignInForm);
-
-app.post("/sign_in", basicAuth, handleSignIn);
-
-app.post("/superuser", basicAdmin, handleAdmin);
-
-// app.post("/superuser" , addAdmin);
-
 
 //admin\\
 
@@ -319,6 +260,48 @@ app.delete("/superuser/volunteer/:id", basicAdmin, deleteVolunteerProfile);
 app.get("/superuser/host/:id/service/:id", basicAdmin, handleAdminHostService);
 app.put("/superuser/host/:id/service/:id", basicAdmin, updateServiceProfile);
 app.delete("/superuser/host/:id/service/:id", basicAdmin, deleteServiceAdmin);
+
+// function verifyToken(req, res, next) {
+
+// }
+
+////////////////////////////////////
+// Routes
+// app.get("/volunteer/:id", bearerVolunteer, handleGetVolunteerProfile);
+// app.put("/volunteer/:id", bearerVolunteer, updateVolunteerProfile);
+// app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost);
+// app.get(
+//   "/volunteer/:id/host/:id/service/:id",
+//   bearerVolunteer,
+//   handleVolunteerViewingHostService
+// );
+
+// app.get("/host/:id", bearerHost, handleGetHostProfile);
+// app.put("/host/:id", bearerHost, updateHostProfile);
+// app.get("/host/:id/service", bearerHost, handleGetHostService);
+// app.post("/host/:id/service", bearerHost, createServiceProfile);
+// app.get("/host/:id/service/:id", bearerHost, handleOneHostService);
+// app.put("/host/:id/service/:id", bearerHost, updateServiceProfile);
+// app.delete("/host/:id/service/:id", bearerHost, deleteServiceProfile);
+// app.get("/host/:id/volunteer/:id", bearerHost, handleHostViewingVolunteer);
+
+// app.get("/", handleHome);
+
+// app.get("/volunteers/sign_up", handleVolunteerForm);
+
+// app.post("/volunteers/sign_up", handleVolunteerSignup);
+
+// app.get("/hosts/sign_up", handleHostForm);
+
+// app.post("/hosts/sign_up", handleHostSignup);
+
+// app.get("/sign_in", handleSignInForm);
+
+// app.post("/sign_in", basicAuth, handleSignIn);
+
+// app.post("/superuser", basicAdmin, handleAdmin);
+
+// app.post("/superuser" , addAdmin);
 
 // app.post("/superuserAdmin",basicAdmin, addAdmin);
 

@@ -26,7 +26,6 @@ async function handleSearchBar(req, res) {
       client
         .query(query, safeValue)
         .then((data) => {
-          console.log(data.rows);
           res.json({ searchResults: data.rows });
         })
         .catch((err) => {
@@ -44,7 +43,8 @@ function handleDisplaySearch(req, res) {
 }
 
 async function handleHome(req, res) {
-  res.render("index");
+  // res.render("index");
+  res.send("aya she");
 
   // const token = req.cookies.JWT_TOKEN;
   // if(token) {
@@ -176,8 +176,6 @@ async function handleHostSignup(req, res) {
     if (results.length === 0) {
       results = await checkVolunteerExists(userName);
     }
-
-    console.log("results", results);
 
     if (results.length === 0) {
       const formData = req.body;
@@ -529,7 +527,7 @@ async function handleAdmin(req, res) {
 
     console.log("hre");
     if (req.user.success === true) {
-      console.log("Im here")
+      console.log("Im here");
       const payload = {
         id: req.user.userData.id,
         name: req.user.userData.user_name,
@@ -618,7 +616,8 @@ async function checkHostUserName(username) {
 async function addAdmin(req, res) {
   const adminData = req.body;
   console.log(adminData);
-  const insertQuery = "insert into admin(user_name, first_name, last_name, password, email) values($1, $2, $3, $4, $5) returning *;";
+  const insertQuery =
+    "insert into admin(user_name, first_name, last_name, password, email) values($1, $2, $3, $4, $5) returning *;";
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
   const safeValues = [
@@ -674,5 +673,5 @@ module.exports = {
   deleteHostProfile,
   deleteVolunteerProfile,
   deleteServiceAdmin,
-  addAdmin
+  addAdmin,
 };
