@@ -2,10 +2,9 @@
 
 // 3rd Party Resources
 const express = require("express");
-// const socketio = require('socket.io')
-// const Filter = require('bad-words')
+const socketio = require('socket.io')
+const Filter = require('bad-words')
 const http = require('http')
-
 
 const client = require("../DataBase/data");
 
@@ -40,8 +39,8 @@ const basicAdmin = require("./auth/middleware/basicAdmin");
 const bearerAuth = require("./auth/middleware/bearer");
 const bearerVolunteer = require("./auth/middleware/bearerVolunteer");
 const bearerHost = require("./auth/middleware/bearerHost");
-const { generateMessage } = require('./utils/messages')
-const { addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users')
+// const { generateMessage } = require('./utils/messages')
+// const { addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users')
 
 
 const {
@@ -85,16 +84,11 @@ const {
 
 // App Level MW
 app.use(cors());
-const server = http.createServer(app)
-// const io = socketio(server)
+
 //AOuth 
 const {OAuth2Client} = require('google-auth-library');
 const CLIENT_ID = '828937553057-8gc5eli5vu3v2oig6rphup580sg33lj4.apps.googleusercontent.com'
 const Gclient = new OAuth2Client(CLIENT_ID);
-
-
-
-
 
 // Oauth
 
@@ -145,7 +139,6 @@ app.get('/logout', (req, res)=>{
 function checkAuthenticated(req, res, next){
 
   let token = req.cookies['session-token'];
-  console.log(token);
 
   let user = {};
   async function verify() {
@@ -170,56 +163,33 @@ function checkAuthenticated(req, res, next){
 }
 
 // ****************************SOCKETIO*******************************
+const server = http.createServer(app)
+// const io = socketio(server)
+
+// const activeUsers = new Set();
 
 // io.on('connection', (socket) => {
-//   console.log('New WebSocket connection')
+// 	console.log('New user connected')
 
-//   socket.on('join', (options, callback) => {
-//       const { error, user } = addUser({ id: socket.id, ...options })
+// 	//default username
+// 	socket.username = "Anonymous"
 
-//       if (error) {
-//           return callback(error)
-//       }
+//     //listen on change_username
+//     socket.on('change_username', (data) => {
+//         socket.username = data.username
+//     })
 
-//       socket.join(user.room)
+//     //listen on new_message
+//     socket.on('new_message', (data) => {
+//         //broadcast the new message
+//         io.sockets.emit('new_message', {message : data.message, username : socket.username});
+//     })
 
-//       socket.emit('message', generateMessage('Admin', 'Welcome!'))
-//       socket.broadcast.to(user.room).emit('message', generateMessage('Admin', `${user.username} has joined!`))
-//       io.to(user.room).emit('roomData', {
-//           room: user.room,
-//           users: getUsersInRoom(user.room)
-//       })
-
-//       callback()
-//   })
-
-//   socket.on('sendMessage', (message, callback) => {
-//       const user = getUser(socket.id)
-//       const filter = new Filter()
-
-//       if (filter.isProfane(message)) {
-//           return callback('Profanity is not allowed!')
-//       }
-
-//       io.to(user.room).emit('message', generateMessage(user.username, message))
-//       callback()
-//   })
-
-
-
-//   socket.on('disconnect', () => {
-//       const user = removeUser(socket.id)
-
-//       if (user) {
-//           io.to(user.room).emit('message', generateMessage('Admin', `${user.username} has left!`))
-//           io.to(user.room).emit('roomData', {
-//               room: user.room,
-//               users: getUsersInRoom(user.room)
-//           })
-//       }
-//   })
+//     //listen on typing
+//     socket.on('typing', (data) => {
+//     	socket.broadcast.emit('typing', {username : socket.username})
+//     })
 // })
-
 
 // *******************************************************************
 
@@ -248,7 +218,7 @@ app.post("/volunteers/sign_up", handleVolunteerSignup);
 
 app.get("/hosts/sign_up", handleHostForm);
 
-app.post("/searchResults", bearerAuth, handleSearchBar);
+app.post("/searchResults", handleSearchBar);
 app.get("/searchResults", handleDisplaySearch);
 
 app.post("/hosts/sign_up", handleHostSignup);
@@ -335,7 +305,7 @@ module.exports = {
     client
       .connect()
       .then(() => {
-        app.listen(PORT, () => {
+        server.listen(PORT, () => {
           console.log(`SERVER IS HERE  ${PORT}`);
         });
       })

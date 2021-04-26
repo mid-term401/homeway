@@ -11,6 +11,7 @@ const messageTemplate = document.querySelector('#message-template').innerHTML
 const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML
 
 // Options
+console.log(`*********************`, Qs.parse(location.search, { ignoreQueryPrefix: true }));
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })
 
 const autoscroll = () => {
