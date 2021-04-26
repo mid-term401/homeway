@@ -101,7 +101,7 @@ app.post("/volunteers/sign_up", handleVolunteerSignup);
 
 app.get("/hosts/sign_up", handleHostForm);
 
-app.post("/searchResults", bearerAuth, handleSearchBar);
+app.post("/searchResults", handleSearchBar);
 app.get("/searchResults", handleDisplaySearch);
 
 app.post("/hosts/sign_up", handleHostSignup);

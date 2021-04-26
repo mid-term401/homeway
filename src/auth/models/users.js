@@ -22,7 +22,7 @@ async function handleSearchBar(req, res) {
     const query = 'SELECT * FROM Service WHERE country=$1 OR title=$2';
     let safeValue = [countryNames[0].country, req.body.WorkField];
     client.query(query, safeValue).then(data => {
-      console.log(data.rows);
+      // console.log(data.rows);
       res.json({ 'searchResults': data.rows })
     }).catch(err => {
       console.log(`error in getting search results from DB ${err}`);

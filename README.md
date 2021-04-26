@@ -19,6 +19,10 @@
 ## Libraries and Packages: 
 [Node Mailer](https://nodemailer.com/about/)
 
+## Testing :
+* `npm test countryAPI.test`;
+* `npm test basic.test`
+
 ## Getting Started
 1. Clone this repository to your local machine `git clone https://github.com/mid-term401/homeway.git`
 2. Once downloaded, you can either use the dotnet CLI utilities or Visual Studio 2017 (or greater) to build the web application.
