@@ -161,6 +161,48 @@ function checkAuthenticated(req, res, next){
     })
 
 }
+// Routes
+app.get("/volunteer/:id", bearerVolunteer, handleGetVolunteerProfile);
+app.put("/volunteer/:id", bearerVolunteer, updateVolunteerProfile);
+app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost);
+app.get("/volunteer/:id/host/:id/service/:id", bearerVolunteer, handleVolunteerViewingHostService);
+
+
+app.get("/host/:id", bearerHost, handleGetHostProfile);
+app.put("/host/:id", bearerHost, updateHostProfile);
+app.get("/host/:id/service", bearerHost, handleGetHostService);
+app.post("/host/:id/service", bearerHost, createServiceProfile);
+app.get("/host/:id/service/:id", bearerHost, handleOneHostService);
+app.put("/host/:id/service/:id", bearerHost, updateServiceProfile);
+app.delete("/host/:id/service/:id", bearerHost, deleteServiceProfile);
+app.get("/host/:id/volunteer/:id", bearerHost, handleHostViewingVolunteer);
+
+// app.get("/", handleHome);
+
+app.get("/volunteers/sign_up", handleVolunteerForm);
+
+app.post("/volunteers/sign_up", handleVolunteerSignup);
+
+app.get("/hosts/sign_up", handleHostForm);
+
+app.post("/searchResults", bearerAuth, handleSearchBar);
+app.get("/searchResults", handleDisplaySearch);
+
+app.post("/hosts/sign_up", handleHostSignup);
+
+app.get("/sign_in", handleSignInForm);
+
+app.post("/sign_in", basicAuth, handleSignIn);
+
+
+app.post("/superuser", basicAdmin , handleAdmin);
+
+// app.post("/superuser" , addAdmin);
+
+
+// function verifyToken(req, res, next) {
+
+// }
 
 ////////////////////////////////////
 // Routes
@@ -206,7 +248,10 @@ app.post("/superuser", basicAdmin , handleAdmin);
 
 
 // Catchalls
-app.use(notFound);
+app.get('/error', (req, res) => {
+  throw new Error('Server Error ');
+});
+app.use('*',notFound);
 app.use(errorHandler);
 
 
@@ -215,6 +260,7 @@ app.use(errorHandler);
 
 
 module.exports = {
+  server:app,
   start: (PORT) => {
     client
       .connect()
