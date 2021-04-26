@@ -614,23 +614,23 @@ async function checkVolunteerEmail(email) {
   } else return true;
 }
 
-// async function addAdmin(req, res) {
-//   const adminData = req.body;
-//   console.log(adminData);
-//   const insertQuery = "insert into admin(user_name, first_name, last_name, password, email) values($1, $2, $3, $4, $5) returning *;";
-//   const hashedPassword = await bcrypt.hash(req.body.password, 10);
-// 
-//   const safeValues = [
-//     adminData.user_name,
-//     adminData.first_name,
-//     adminData.last_name,
-//     hashedPassword,
-//     adminData.email,
-//   ];
-//   let admin = await client.query(insertQuery, safeValues);
-//   console.log(`**************************************`);
-//   console.log("Added a new admin", admin);
-// }
+async function addAdmin(req, res) {
+  const adminData = req.body;
+  console.log(adminData);
+  const insertQuery = "insert into admin(user_name, first_name, last_name, password, email) values($1, $2, $3, $4, $5) returning *;";
+  const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+  const safeValues = [
+    adminData.user_name,
+    adminData.first_name,
+    adminData.last_name,
+    hashedPassword,
+    adminData.email,
+  ];
+  let admin = await client.query(insertQuery, safeValues);
+  console.log(`**************************************`);
+  console.log("Added a new admin", admin);
+}
 
 //constructors
 function Country(data) {
