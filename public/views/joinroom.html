@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <!--  -->
+</head>
+
+<body>
+    <div class="centered-form">
+        <div class="centered-form__box">
+            <h1>
+                <%=data.room  %>
+            </h1>
+            <form action="/chatRoom" method="get">
+                <input type="hidden" name="username" value="<%=data.username%> ">
+                <input type="hidden" name="room" value="<%=data.room  %> ">
+                <button>start chat</button>
+            </form>
+        </div>
+    </div>
+
+    </form>
+</body>
+
+</html>

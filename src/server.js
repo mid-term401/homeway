@@ -2,9 +2,11 @@
 
 // 3rd Party Resources
 const express = require("express");
-// const socketio = require('socket.io')
-// const Filter = require('bad-words')
+const socketio = require('socket.io')
+const Filter = require('bad-words')
 const http = require('http')
+
+
 
 
 const client = require("../DataBase/data");
@@ -45,35 +47,35 @@ const { addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users'
 
 
 const {
-  handleSearchBar,
-  handleDisplaySearch,
-  handleHome,
-  handleHostForm,
-  handleSignInForm,
-  handleSignIn,
-  handleVolunteerSignup,
-  handleHostSignup,
-  handleVolunteerForm,
-  handleGetVolunteerProfile,
-  updateVolunteerProfile,
-  updateHostProfile,
-  createServiceProfile,
-  updateServiceProfile,
-  handleVolunteerViewingHost,
-  handleVolunteerViewingHostService,
-  handleGetHostProfile,
-  handleGetHostService,
-  handleOneHostService,
-  deleteServiceProfile,
-  handleHostViewingVolunteer,
-  handleAdmin,
-  handleAdminHost,
-  handleAdminVolunteer,
-  handleAdminHostService,
-  deleteHostProfile,
-  deleteVolunteerProfile,
-  deleteServiceAdmin,
-  addAdmin,
+    handleSearchBar,
+    handleDisplaySearch,
+    handleHome,
+    handleHostForm,
+    handleSignInForm,
+    handleSignIn,
+    handleVolunteerSignup,
+    handleHostSignup,
+    handleVolunteerForm,
+    handleGetVolunteerProfile,
+    updateVolunteerProfile,
+    updateHostProfile,
+    createServiceProfile,
+    updateServiceProfile,
+    handleVolunteerViewingHost,
+    handleVolunteerViewingHostService,
+    handleGetHostProfile,
+    handleGetHostService,
+    handleOneHostService,
+    deleteServiceProfile,
+    handleHostViewingVolunteer,
+    handleAdmin,
+    handleAdminHost,
+    handleAdminVolunteer,
+    handleAdminHostService,
+    deleteHostProfile,
+    deleteVolunteerProfile,
+    deleteServiceAdmin,
+    addAdmin,
 } = require("./auth/models/users");
 
 // Database
@@ -86,139 +88,147 @@ const {
 // App Level MW
 app.use(cors());
 const server = http.createServer(app)
-// const io = socketio(server)
-//AOuth 
-const {OAuth2Client} = require('google-auth-library');
+const io = socketio(server)
+    //AOuth 
+const { OAuth2Client } = require('google-auth-library');
 const CLIENT_ID = '828937553057-8gc5eli5vu3v2oig6rphup580sg33lj4.apps.googleusercontent.com'
 const Gclient = new OAuth2Client(CLIENT_ID);
 
+//socket
 
-
-
+app.get('/chat', (req, res) => {
+    let data = { username: 'volunteer1', room: 'host1' }
+    res.render('joinroom', { data })
+})
+app.get('/chatRoom', (req, res) => {
+    // let { username, room } = req.query;
+    // console.log({ username, room });
+    res.render('chat')
+})
 
 // Oauth
 
-app.get('/', (req, res)=>{
-  res.render('index')
+app.get('/', (req, res) => {
+    res.render('index')
 })
 
-app.get('/login', (req,res)=>{
-  res.render('login');
+app.get('/login', (req, res) => {
+    res.render('login');
 })
 
-app.post('/login', (req,res)=>{
-  let token = req.body.token;
+app.post('/login', (req, res) => {
+    let token = req.body.token;
 
-  async function verify() {
-      const ticket = await Gclient.verifyIdToken({
-          idToken: token,
-          audience: CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
-      });
-      const payload = ticket.getPayload();
-      const userid = payload['sub'];
+    async function verify() {
+        const ticket = await Gclient.verifyIdToken({
+            idToken: token,
+            audience: CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
+        });
+        const payload = ticket.getPayload();
+        const userid = payload['sub'];
     }
     verify()
-    .then(()=>{
-        res.cookie('session-token', token);
-        res.send('success')
-    })
-    .catch(console.error);
+        .then(() => {
+            res.cookie('session-token', token);
+            res.send('success')
+        })
+        .catch(console.error);
 
 })
 
-app.get('/profile', checkAuthenticated, (req, res)=>{
-  let user = req.user;
-  res.render('profile', {user});
+app.get('/profile', checkAuthenticated, (req, res) => {
+    let user = req.user;
+    res.render('profile', { user });
 })
 
-app.get('/protectedRoute', checkAuthenticated, (req,res)=>{
-  res.send('This route is protected')
+app.get('/protectedRoute', checkAuthenticated, (req, res) => {
+    res.send('This route is protected')
 })
 
-app.get('/logout', (req, res)=>{
-  res.clearCookie('session-token');
-  res.redirect('/login')
+app.get('/logout', (req, res) => {
+    res.clearCookie('session-token');
+    res.redirect('/login')
 
 })
 
 
-function checkAuthenticated(req, res, next){
+function checkAuthenticated(req, res, next) {
 
-  let token = req.cookies['session-token'];
-  console.log(token);
+    let token = req.cookies['session-token'];
+    console.log(token);
 
-  let user = {};
-  async function verify() {
-      const ticket = await Gclient.verifyIdToken({
-          idToken: token,
-          audience: CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
-      });
-      const payload = ticket.getPayload();
-      user.name = payload.name;
-      user.email = payload.email;
-      user.picture = payload.picture;
+    let user = {};
+    async function verify() {
+        const ticket = await Gclient.verifyIdToken({
+            idToken: token,
+            audience: CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
+        });
+        const payload = ticket.getPayload();
+        user.name = payload.name;
+        user.email = payload.email;
+        user.picture = payload.picture;
     }
     verify()
-    .then(()=>{
-        req.user = user;
-        next();
-    })
-    .catch(err=>{
-        res.redirect('/login')
-    })
+        .then(() => {
+            req.user = user;
+            next();
+        })
+        .catch(err => {
+            res.redirect('/login')
+        })
 
 }
 
 // ****************************SOCKETIO*******************************
 
-// io.on('connection', (socket) => {
-//   console.log('New WebSocket connection')
+io.on('connection', (socket) => {
+    console.log('New WebSocket connection')
 
-//   socket.on('join', (options, callback) => {
-//       const { error, user } = addUser({ id: socket.id, ...options })
+    socket.on('join', (options, callback) => {
+        const { error, user } = addUser({ id: socket.id, ...options })
 
-//       if (error) {
-//           return callback(error)
-//       }
+        if (error) {
+            return callback(error)
+        }
 
-//       socket.join(user.room)
+        socket.join(user.room)
 
-//       socket.emit('message', generateMessage('Admin', 'Welcome!'))
-//       socket.broadcast.to(user.room).emit('message', generateMessage('Admin', `${user.username} has joined!`))
-//       io.to(user.room).emit('roomData', {
-//           room: user.room,
-//           users: getUsersInRoom(user.room)
-//       })
+        socket.emit('message', generateMessage(`${user.room}`, `Welcome ${user.username}`))
+        socket.broadcast.to(user.room).emit('message', generateMessage('Admin', `${user.username} has joined!`))
+        io.to(user.room).emit('roomData', {
+            room: user.room,
+            users: getUsersInRoom(user.room)
+        })
 
-//       callback()
-//   })
+        callback()
+    })
 
-//   socket.on('sendMessage', (message, callback) => {
-//       const user = getUser(socket.id)
-//       const filter = new Filter()
+    socket.on('sendMessage', (message, callback) => {
+        const user = getUser(socket.id)
+        const filter = new Filter()
 
-//       if (filter.isProfane(message)) {
-//           return callback('Profanity is not allowed!')
-//       }
+        if (filter.isProfane(message)) {
+            return callback('Profanity is not allowed!')
+        }
 
-//       io.to(user.room).emit('message', generateMessage(user.username, message))
-//       callback()
-//   })
+        io.to(user.room).emit('message', generateMessage(user.username, message))
+        callback()
+    })
 
 
 
-//   socket.on('disconnect', () => {
-//       const user = removeUser(socket.id)
+    socket.on('disconnect', () => {
+        const user = removeUser(socket.id)
 
-//       if (user) {
-//           io.to(user.room).emit('message', generateMessage('Admin', `${user.username} has left!`))
-//           io.to(user.room).emit('roomData', {
-//               room: user.room,
-//               users: getUsersInRoom(user.room)
-//           })
-//       }
-//   })
-// })
+        if (user) {
+            io.to(user.room).emit('message', generateMessage('Admin', `${user.username} has left!`))
+            io.to(user.room).emit('roomData', {
+                room: user.room,
+                users: getUsersInRoom(user.room)
+            })
+        }
+    })
+})
 
 
 // *******************************************************************
@@ -270,9 +280,9 @@ app.get("/volunteer/:id", bearerVolunteer, handleGetVolunteerProfile);
 app.put("/volunteer/:id", bearerVolunteer, updateVolunteerProfile);
 app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost);
 app.get(
-  "/volunteer/:id/host/:id/service/:id",
-  bearerVolunteer,
-  handleVolunteerViewingHostService
+    "/volunteer/:id/host/:id/service/:id",
+    bearerVolunteer,
+    handleVolunteerViewingHostService
 );
 
 app.get("/host/:id", bearerHost, handleGetHostProfile);
@@ -331,16 +341,16 @@ app.use(notFound);
 app.use(errorHandler);
 
 module.exports = {
-  start: (PORT) => {
-    client
-      .connect()
-      .then(() => {
-        app.listen(PORT, () => {
-          console.log(`SERVER IS HERE  ${PORT}`);
-        });
-      })
-      .catch((error) => {
-        console.log("Error while connecting to the DB ..", error);
-      });
-  },
+    start: (PORT) => {
+        client
+            .connect()
+            .then(() => {
+                server.listen(PORT, () => {
+                    console.log(`SERVER IS HERE  ${PORT}`);
+                });
+            })
+            .catch((error) => {
+                console.log("Error while connecting to the DB ..", error);
+            });
+    },
 };

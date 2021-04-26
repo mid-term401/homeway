@@ -24,6 +24,7 @@
     "admin-bro": "^4.0.1",
     "admin-bro-expressjs": "^2.1.1",
     "admin-bro-sequelizejs": "^0.5.1",
+    "bad-words": "^3.0.4",
     "base-64": "^1.0.0",
     "bcrypt": "^5.0.1",
     "cookie-parser": "^1.4.5",
@@ -38,6 +39,7 @@
     "nodemon": "^2.0.7",
     "pg": "^8.6.0",
     "sequelize": "^6.6.2",
+    "socket.io": "^4.0.1",
     "superagent": "^6.1.0"
   },
   "devDependencies": {
