@@ -216,6 +216,7 @@ function checkAuthenticated(req, res, next) {
 // *******************************************************************
 
 // Routes
+
 app.get("/volunteer/:id", bearerVolunteer, handleGetVolunteerProfile);
 app.put("/volunteer/:id", bearerVolunteer, updateVolunteerProfile);
 app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost);
@@ -225,14 +226,16 @@ app.get(
   handleVolunteerViewingHostService
 );
 
-app.get("/host/:id", bearerHost, handleGetHostProfile);
-app.put("/host/:id", bearerHost, updateHostProfile);
-app.get("/host/:id/service", bearerHost, handleGetHostService);
-app.post("/host/:id/service", bearerHost, createServiceProfile);
-app.get("/host/:id/service/:id", bearerHost, handleOneHostService);
-app.put("/host/:id/service/:id", bearerHost, updateServiceProfile);
-app.delete("/host/:id/service/:id", bearerHost, deleteServiceProfile);
-app.get("/host/:id/volunteer/:id", bearerHost, handleHostViewingVolunteer);
+
+// app.get("/host/:id", bearerHost, handleGetHostProfile);
+// app.put("/host/:id", bearerHost, updateHostProfile);
+// app.get("/host/:id/service", bearerHost, handleGetHostService);
+// app.post("/host/:id/service", bearerHost, createServiceProfile);
+// app.get("/host/:id/service/:id", bearerHost, handleOneHostService);
+// app.put("/host/:id/service/:id", bearerHost, updateServiceProfile);
+// app.delete("/host/:id/service/:id", bearerHost, deleteServiceProfile);
+// app.get("/host/:id/volunteer/:id", bearerHost, handleHostViewingVolunteer);
+
 
 app.get("/", handleHome);
 
@@ -246,6 +249,7 @@ app.post("/superuser", basicAdmin, handleAdmin);
 
 app.post("/searchResults", handleSearchBar);
 app.get("/searchResults", handleDisplaySearch);
+
 
 //admin\\
 
