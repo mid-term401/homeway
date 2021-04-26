@@ -611,12 +611,11 @@ async function checkVolunteerEmail(email) {
   } else return true;
 }
 
-async function addAdmin(req, res) {
-  const adminData = req.body;
-  console.log(adminData);
-  const insertQuery =
-    "insert into admin(user_name, first_name, last_name, password, email) values($1, $2, $3, $4, $5) returning *;";
-  const hashedPassword = await bcrypt.hash(req.body.password, 10);
+// async function addAdmin(req, res) {
+//   const adminData = req.body;
+//   console.log(adminData);
+//   const insertQuery = "insert into admin(user_name, first_name, last_name, password, email) values($1, $2, $3, $4, $5) returning *;";
+//   const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
   const safeValues = [
     adminData.user_name,
