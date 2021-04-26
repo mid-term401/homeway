@@ -107,7 +107,7 @@ app.post("/volunteers/sign_up", handleVolunteerSignup);
 
 app.get("/hosts/sign_up", handleHostForm);
 
-app.post("/searchResults", bearerAuth, handleSearchBar);
+app.post("/searchResults", handleSearchBar);
 app.get("/searchResults", handleDisplaySearch);
 
 app.post("/hosts/sign_up", handleHostSignup);
@@ -139,10 +139,14 @@ app.delete("/superuser/host/:id/service/:id", basicAdmin, deleteServiceAdmin);
 // }
 
 // Catchalls
-app.use(notFound);
+app.get("/error", (req, res) => {
+  throw new Error("Server Error ");
+});
+app.use("*", notFound);
 app.use(errorHandler);
 
 module.exports = {
+  server: app,
   start: (PORT) => {
     client
       .connect()
