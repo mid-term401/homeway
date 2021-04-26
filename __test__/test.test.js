@@ -5,15 +5,26 @@ const superTest = require("supertest");
 const base64 = require("base-64");
 const client = require("../DataBase/data");
 const request = superTest(server);
-
+const middleware = require("../src/auth/middleware/bearer.js");
+const middlewareHost = require("../src/auth/middleware/bearerHost.js");
+const middlewareVolunteer = require("../src/auth/middleware/bearerVolunteer.js");
+const middlewareAdmin = require("../src/auth/middleware/bearerAdmin.js");
+const jwt = require("jsonwebtoken");
+process.env.SECRET = "wHaT";
 let user = {
   username: "Admin2",
   password: "admin123",
 };
 
+let users = {
+  admin: { username: "admin", password: "password" },
+};
+// const token = jwt.sign(users.admin, "wHaT");
+
 describe("Server", () => {
-  beforeAll(async () => {
+  beforeAll(async (done) => {
     await client.connect();
+    done();
   });
   // Error Handlers
   //   it("should successfully handle invalid routes", async () => {
@@ -259,6 +270,45 @@ describe("Server", () => {
   //       );
   //     expect(response.status).toEqual(200);
   //   });
+
+  // Pre-load our database with fake users
+
+  describe("Auth Middleware", () => {
+    // Mock the express req/res/next that we need for each middleware call
+    const req = {};
+    const res = {
+      status: jest.fn(() => res),
+      send: jest.fn(() => res),
+    };
+    const next = jest.fn();
+
+    describe("user authentication", () => {
+      it("fails a login for a user (admin) with an incorrect token", () => {
+        req.headers = {
+          authorization: "Bearer thisisabadtoken",
+        };
+
+        return middleware(req, res, next).then(() => {
+          expect(next).not.toHaveBeenCalled();
+          expect(res.status).toHaveBeenCalledWith(403);
+        });
+      });
+
+      it("logs in a user with a proper token", () => {
+        const user = { name: "admin", id: 1 };
+        const token = jwt.sign(user, process.env.SECRET || "wHaT");
+        console.log(token);
+
+        req.headers = {
+          authorization: `Bearer ${token}`,
+        };
+
+        return middleware(req, res, next).then(() => {
+          expect(res.status).toHaveBeenCalledWith(403);
+        });
+      });
+    });
+  });
 
   afterAll(async () => {
     await client.end();
