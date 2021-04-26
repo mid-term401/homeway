@@ -43,6 +43,7 @@ const bearerHost = require("./auth/middleware/bearerHost");
 const { generateMessage } = require('./utils/messages')
 const { addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users')
 
+
 const {
   handleSearchBar,
   handleDisplaySearch,
@@ -72,8 +73,7 @@ const {
   deleteHostProfile,
   deleteVolunteerProfile,
   deleteServiceAdmin,
-
-  // addAdmin,
+  addAdmin,
 } = require("./auth/models/users");
 
 // Database
@@ -257,9 +257,7 @@ app.get("/sign_in", handleSignInForm);
 
 app.post("/sign_in", basicAuth, handleSignIn);
 
-app.post("/superuser", basicAdmin , handleAdmin);
 
-// app.post("/superuser" , addAdmin);
 
 
 // function verifyToken(req, res, next) {
@@ -305,6 +303,9 @@ app.post("/sign_in", basicAuth, handleSignIn);
 
 app.post("/superuser", basicAdmin, handleAdmin);
 
+// app.post("/superuser" , addAdmin);
+
+
 //admin\\
 
 app.get("/superuser/host/:id", basicAdmin, handleAdminHost);
@@ -319,7 +320,7 @@ app.get("/superuser/host/:id/service/:id", basicAdmin, handleAdminHostService);
 app.put("/superuser/host/:id/service/:id", basicAdmin, updateServiceProfile);
 app.delete("/superuser/host/:id/service/:id", basicAdmin, deleteServiceAdmin);
 
-// app.post("/superuser", addAdmin);
+// app.post("/superuserAdmin",basicAdmin, addAdmin);
 
 // function verifyToken(req, res, next) {
 

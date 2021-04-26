@@ -524,8 +524,11 @@ async function handleHostViewingVolunteer(req, res) {
 
 async function handleAdmin(req, res) {
   try {
+    console.log(req.user);
+
     console.log("hre");
     if (req.user.success === true) {
+      console.log("Im here")
       const payload = {
         id: req.user.userData.id,
         name: req.user.userData.user_name,
@@ -560,9 +563,9 @@ async function handleAdmin(req, res) {
         services: services.rows,
       });
 
-      res.setHeader("set-cookie", [
-        `JWT_TOKEN=${token}; httponly; samesite=lax`,
-      ]);
+      // res.setHeader("set-cookie", [
+      //   // `JWT_TOKEN=${token}; httponly; samesite=lax`,
+      // ]);
     } else {
       res.json("Error Incorrect username or password");
     }
@@ -670,5 +673,5 @@ module.exports = {
   deleteHostProfile,
   deleteVolunteerProfile,
   deleteServiceAdmin,
-  // addAdmin,
+  addAdmin
 };
