@@ -27,18 +27,10 @@ module.exports = async (req, res, next) => {
 
 async function checkToken(token) {
   try {
-    const searchVolunteer = "select * from volunteer where token = $1 ;";
-
     const searchHost = "select * from host where token = $1 ;";
 
-    let volunteerData = await client
-      .query(searchVolunteer, [token])
-    if (volunteerData.rows.length === 0) {
-      let hostData = await client.query(searchHost, [token])
-      return hostData.rows[0];
-    }
-    return volunteerData.rows[0];
-
+    let hostData = await client.query(searchHost, [token])
+    return hostData.rows[0];
   } catch (e) {
     console.log(e.message);
   }

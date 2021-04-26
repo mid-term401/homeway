@@ -2,109 +2,155 @@
 
 // 3rd Party Resources
 const express = require("express");
+//for chat app
+// np
+
+
+const client = require("../DataBase/data")
+
 const cors = require("cors");
 require("dotenv").config();
-const superagent = require("superagent");
-const pg = require("pg");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 // Esoteric Resources
+// const aRouter = require("./auth/routes/routes.js");
 const errorHandler = require("./error-handlers/500");
 const notFound = require("./error-handlers/404.js");
 
 // Prepare the express app
 const app = express();
+app.use(cors());
+
+
+
+const Router = express.Router();
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(__dirname + '../public'));
-app.set('views', __dirname + '/../public/views');
-app.engine('html', require('ejs').renderFile);
-app.set('view engine', 'html');
+app.use(express.static(__dirname + "../public"));
+app.set("views", __dirname + "/../public/views");
+app.engine("html", require("ejs").renderFile);
+app.set("view engine", "html");
+
+// Requiring files 
+const basicAuth = require("./auth/middleware/basic");
+const basicAdmin = require("./auth/middleware/basicAdmin");
+const bearerAuth = require("./auth/middleware/bearer");
+const bearerVolunteer = require("./auth/middleware/bearerVolunteer");
+const bearerHost = require("./auth/middleware/bearerHost");
+
+const {
+    handleSearchBar,
+    handleDisplaySearch,
+    handleHome,
+    handleHostForm,
+    handleSignInForm,
+    handleSignIn,
+    handleVolunteerSignup,
+    handleHostSignup,
+    handleVolunteerForm,
+    handleGetVolunteerProfile,
+    updateVolunteerProfile,
+    updateHostProfile,
+    createServiceProfile,
+    updateServiceProfile,
+    handleVolunteerViewingHost,
+    handleVolunteerViewingHostService,
+    handleGetHostProfile,
+    handleGetHostService,
+    handleOneHostService,
+    deleteServiceProfile,
+    handleHostViewingVolunteer,
+    handleAdmin,
+    // addAdmin
+} = require("./auth/models/users");
+
 
 
 // Database
 
-const client = new pg.Client(process.env.DATABASE_URL);
-// const client = new pg.Client({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+// const client = new pg.Client(process.env.DATABASE_URL);
 
 
-// JWT configuration
-
-const secretKey = process.env.SECRET_KEY;
-const secretKeyRefresher = process.env.SECRET_KEY_REFRESHER;
-
+// const secretKey = process.env.SECRET_KEY;
+// const secretKeyRefresher = process.env.SECRET_KEY_REFRESHER;
 
 // App Level MW
 app.use(cors());
 
 // Routes
+app.get("/volunteer/:id", bearerVolunteer, handleGetVolunteerProfile);
+app.put("/volunteer/:id", bearerVolunteer, updateVolunteerProfile);
+app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost);
+app.get("/volunteer/:id/host/:id/service/:id", bearerVolunteer, handleVolunteerViewingHostService);
 
-app.get("/", handleHome );
 
-app.get("/volunteers/sign_up", handleSignUpForm );
+app.get("/host/:id", bearerHost, handleGetHostProfile);
+app.put("/host/:id", bearerHost, updateHostProfile);
+app.get("/host/:id/service", bearerHost, handleGetHostService);
+app.post("/host/:id/service", bearerHost, createServiceProfile);
+app.get("/host/:id/service/:id", bearerHost, handleOneHostService);
+app.put("/host/:id/service/:id", bearerHost, updateServiceProfile);
+app.delete("/host/:id/service/:id", bearerHost, deleteServiceProfile);
+app.get("/host/:id/volunteer/:id", bearerHost, handleHostViewingVolunteer);
 
-app.post("/volunteers/sign_up", handleSignup)
+// app.get("/", handleHome);
 
-app.get("/sign_in", handleSignInForm );
+app.get("/volunteers/sign_up", handleVolunteerForm);
 
-// app.post("/sign_in", handleSignIn );
+app.post("/volunteers/sign_up", handleVolunteerSignup);
 
-// functions
+app.get("/hosts/sign_up", handleHostForm);
 
-function handleHome(req, res) {
-  res.render("index");
-}
+app.post("/searchResults", bearerAuth, handleSearchBar);
+app.get("/searchResults", handleDisplaySearch);
 
-function handleSignUpForm(req, res) {
-  res.render("signup");
-}
+app.post("/hosts/sign_up", handleHostSignup);
 
-function handleSignup(req, res) {
-  try{
-    const formData = req.body;
+app.get("/sign_in", handleSignInForm);
 
-    let insertQuery = "insert into <name of the table>(user_name, first_name, last_name, password, email, country, birth_date, address) values ($1, $2, $3, $4, $5, $6, $7, $8)"
-    const safeValues = [formData.username, formData.password, formData.first_name, formData.last_name, formData.password, formData.email, formData.country, formData.address];
-  
-    client.query(insertQuery, safeValues)
-        .then(data => {
-          console.log(`Data added to the database`);
-          res.render("/", {user : "samer"});
-        })
-        .catch(error => {
-        console.log('', error)
-        })
-  } catch (e) {
-    res.send(e.message);
-  }
-  
-}
+app.post("/sign_in", basicAuth, handleSignIn);
 
-function handleSignInForm(req, res) {
-  res.render("signin");
-}
+
+app.post("/superuser", basicAdmin, handleAdmin);
+
+// app.post("/superuser" , addAdmin);
+
+
+// function verifyToken(req, res, next) {
+
+// }
+
+
 
 
 // Catchalls
-app.use(notFound);
+app.get('/error', (req, res) => {
+    throw new Error('Server Error ');
+});
+app.use('*', notFound);
 app.use(errorHandler);
 
+
+
+
+
+
 module.exports = {
-  start: (PORT) => {
-    client
-      .connect()
-      .then(() => {
-        // console.log("Whattttttttttttttt ..", error);
-        app.listen(PORT, () => {
-          console.log(`SERVER IS HERE  ${PORT}`);
-        });
-      })
-      .catch((error) => {
-        console.log("Error while connecting to the DB ..", error);
-      });
-  },
-};
+    server: app,
+    start: (PORT) => {
+        client
+            .connect()
+            .then(() => {
+                app.listen(PORT, () => {
+                    console.log(`SERVER IS HERE  ${PORT}`);
+                });
+            })
+            .catch((error) => {
+                console.log("Error while connecting to the DB ..", error);
+            });
+    },
+}
