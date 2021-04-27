@@ -94,27 +94,11 @@ const { OAuth2Client } = require('google-auth-library');
 const CLIENT_ID = '828937553057-8gc5eli5vu3v2oig6rphup580sg33lj4.apps.googleusercontent.com'
 const Gclient = new OAuth2Client(CLIENT_ID);
 
-//socket
 
-app.get('/chat', (req, res) => {
-    let data = { username: 'volunteer1', room: 'host1' }
-    res.render('joinroom', { data })
-})
-app.get('/chatRoom', (req, res) => {
-    // let { username, room } = req.query;
-    // console.log({ username, room });
-    res.render('chat')
-})
 
 // Oauth
 
-app.get('/', (req, res) => {
-    res.render('index')
-})
 
-app.get('/login', (req, res) => {
-    res.render('login');
-})
 
 app.post('/login', (req, res) => {
     let token = req.body.token;
@@ -228,6 +212,18 @@ io.on('connection', (socket) => {
             })
         }
     })
+})
+
+//socket
+
+app.get('/chat', (req, res) => {
+    let data = { username: 'volunteer1', room: 'host1' }
+    res.render('joinroom', { data })
+})
+app.get('/chatRoom', (req, res) => {
+    // let { username, room } = req.query;
+    // console.log({ username, room });
+    res.render('chat')
 })
 
 
