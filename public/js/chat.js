@@ -1,4 +1,4 @@
-const socket = io("https://robust-entity-homeway.herokuapp.com/host/4/volunteer/1/chat")
+const socket = io("https://robust-entity-homeway.herokuapp.com/")
 
 // Elements
 const $messageForm = document.querySelector('#message-form')
