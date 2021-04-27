@@ -561,34 +561,7 @@ async function checkHostUserName(username) {
     return false;
   } else return true;
 }
-// async function checkHostEmail(email) {
-//   let searchQ = `select * from host where email = $1`;
-//   let safeValues = [email];
-//   let data = await client.query(searchQ, safeValues);
-//   console.log(data.rowCount);
-//   if (data.rowCount === 0) {
-//     return false;
-//   } else return true;
-// }
 
-// async function checkVolunteerUserName(username) {
-//   let searchQ = `select * from volunteer where user_name = $1`;
-//   let safeValues = [username];
-//   let data = await client.query(searchQ, safeValues);
-//   console.log(data.rowCount);
-//   if (data.rowCount === 0) {
-//     return false;
-//   } else return true;
-// }
-// async function checkVolunteerEmail(email) {
-//   let searchQ = `select * from volunteer where email = $1`;
-//   let safeValues = [email];
-//   let data = await client.query(searchQ, safeValues);
-//   console.log(data.rowCount);
-//   if (data.rowCount === 0) {
-//     return false;
-//   } else return true;
-// }
 
 async function addAdmin(req, res) {
   const adminData = req.body;
