@@ -448,7 +448,7 @@ async function handleAdminHost(req, res) {
 }
 async function handleGetHostService(req, res) {
   let id = req.params.id;
-  console.log(id);
+  // console.log(id);
   let selectQ = `select * from service where host_id = $1;`;
   let safeValues = [id];
   let data = await client.query(selectQ, safeValues);
@@ -577,7 +577,7 @@ async function addAdmin(req, res) {
     adminData.email,
   ];
   let admin = await client.query(insertQuery, safeValues);
-  console.log(`**************************************`);
+  // console.log(`**************************************`);
   console.log("Added a new admin", admin);
 }
 

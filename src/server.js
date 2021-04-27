@@ -230,7 +230,7 @@ const server = http.createServer(app)
 app.get("/volunteer/:id", bearerVolunteer, handleGetVolunteerProfile);
 app.put("/volunteer/:id", bearerVolunteer, updateVolunteerProfile);
 //From Hereeee
-app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost);
+app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost); // done
 app.get(
   "/volunteer/:id/host/:id/service/:id",
   bearerVolunteer,
@@ -240,10 +240,14 @@ app.get(
 app.get("/host/:id", bearerHost, handleGetHostProfile); // done
 app.put("/host/:id", bearerHost, updateHostProfile); // done
 app.get("/host/:id/service", bearerHost, handleGetHostService); // done
-app.post("/host/:id/service", bearerHost, createServiceProfile); // done
+app.post("/host/:id/service", bearerHost, createServiceProfile); //done 
+
+
 app.get("/host/:id/service/:id", bearerHost, handleOneHostService); // done
-app.put("/host/:id/service/:id", bearerHost, updateServiceProfile); // done
-app.delete("/host/:id/service/:id", bearerHost, deleteServiceProfile); //  Unsolved Error
+app.put("/host/:id/service/:id", bearerHost, updateServiceProfile); // done 
+app.delete("/host/:id/service/:id", bearerHost, deleteServiceProfile); // done  
+
+
 app.get("/host/:id/volunteer/:id", bearerHost, handleHostViewingVolunteer); // done
 // Until Heeeerrrrrr
 

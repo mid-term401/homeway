@@ -16,7 +16,7 @@ module.exports = async (req, res, next) => {
         req.user = validUser;
         req.token = validUser.token;
       }
-      console.log("***************", req.user, req.token);
+      // console.log("***************", req.user, req.token);
       next();
     }
   } catch (e) {
