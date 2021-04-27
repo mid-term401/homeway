@@ -1,4 +1,4 @@
-drop table if exists volunteer, host, sign_in, Service, admin, admin_sign_in, feedback;
+drop table if exists volunteer, host, sign_in, Service, admin, admin_sign_in, feedback CASCADE;
 
 CREATE TABLE IF NOT EXISTS volunteer (
   id SERIAL PRIMARY KEY UNIQUE,
@@ -15,6 +15,10 @@ CREATE TABLE IF NOT EXISTS volunteer (
   address VARCHAR (50) NOT NULL,
   rating int,
   profile_image text,
+  -- volunteerRoom_id INT ,
+  -- FOREIGN KEY (volunteerRoom_id) REFERENCES room (id) ON DELETE CASCADE,
+  -- room_id text ,
+  -- FOREIGN KEY (room_id) REFERENCES room (id) ON DELETE CASCADE,
   token text
 );
 CREATE TABLE IF NOT EXISTS host (
@@ -31,8 +35,20 @@ CREATE TABLE IF NOT EXISTS host (
   address VARCHAR (50) NOT NULL,
   rating int,
   profile_image text,
+  -- hostRoom_id INT ,
+  -- FOREIGN KEY (hostRoom_id) REFERENCES room (id) ON DELETE CASCADE,
+  -- room_id text ,
+  -- FOREIGN KEY (room_id) REFERENCES room (id) ON DELETE CASCADE,
   token text
 );
+
+-- CREATE TABLE IF NOT EXISTS room (
+--   id SERIAL PRIMARY KEY,
+--   volunteerRoom_id INT ,
+--   FOREIGN KEY (volunteerRoom_id) REFERENCES volunteer (id) ON DELETE CASCADE,
+--   hostRoom_id INT ,
+--   FOREIGN KEY (hostRoom_id) REFERENCES host (id) ON DELETE CASCADE
+-- );
 CREATE TABLE IF NOT EXISTS sign_in (
   id SERIAL PRIMARY KEY,
   user_name VARCHAR (50) NOT NULL UNIQUE,
