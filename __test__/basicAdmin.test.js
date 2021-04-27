@@ -5,12 +5,12 @@ const superTest = require("supertest");
 const base64 = require("base-64");
 const client = require("../DataBase/data");
 const request = superTest(server);
-;
+
 
 
 let user={
-    user_name: "Mohammad",
-    password: "1994",
+    user_name: "Admin2",
+    password: "admin123",
 };
 
 describe('Signing test', () => {
@@ -21,7 +21,6 @@ describe('Signing test', () => {
 //     const response = await request.post('/superuser').send(user);
 //     expect(response.status).toEqual(200);
 //   });
-
   it('should successfully find user data when login on POST /signin', async () => {
     const response = await request
       .post('/sign_in')
