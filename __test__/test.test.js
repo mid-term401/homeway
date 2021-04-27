@@ -43,7 +43,7 @@ describe("Server", () => {
       });
       expect(response.status).toEqual(200);
     });
-    it("should successfully return data from API", async () => {
+    it("should successfully display data from API", async () => {
       const response = await request.get("/searchResults");
       expect(response.status).toEqual(200);
     });
@@ -220,7 +220,7 @@ describe("Server", () => {
               "base64"
             )
         );
-      expect(response.status).toEqual(200);
+      expect(response.status).toEqual(302);
     });
     it("should admin delete host profile", async () => {
       const response = await request
@@ -232,7 +232,7 @@ describe("Server", () => {
               "base64"
             )
         );
-      expect(response.status).toEqual(200);
+      expect(response.status).toEqual(302);
     });
     it("should admin delete service profile", async () => {
       const response = await request
@@ -244,7 +244,7 @@ describe("Server", () => {
               "base64"
             )
         );
-      expect(response.status).toEqual(200);
+      expect(response.status).toEqual(302);
     });
     it("should admin go to the admin page", async () => {
       const response = await request
@@ -397,6 +397,69 @@ describe("Server", () => {
       });
 
     });
+
+    expect(response.status).toEqual(200);
+  });
+  // Test Signing in for volunteer and host
+  it("should successfully log in as a volunteer upon signing in", async () => {
+    const user = base64.encode("Mohammad:1994");
+    const response = await request
+      .post("/sign_in")
+      .set("Authorization", `Basic ${user}`);
+    expect(response.status).toEqual(200);
+  });
+  it("should successfully log in as a host upon signing in", async () => {
+    const user = base64.encode("Boshra:1994");
+    const response = await request
+      .post("/sign_in")
+      .set("Authorization", `Basic ${user}`);
+    expect(response.status).toEqual(200);
+  });
+  // Testing CRUD:
+  it("should successfully create host if not exists", async () => {
+    const res = await request.post("/hosts/sign_up").send({
+      username: "boshrsa^22",
+      password: "0000",
+      first_name: "samer",
+      last_name: "alnajjar",
+      email: "amass.nse2to",
+      country: "s",
+      address: "s",
+      birth_date: "12-12-2021",
+      category: "aya yshe",
+    });
+
+    expect(res.status).toBe(200);
+  });
+  it("should successfully get get the host profile", async () => {
+    const res = await request.get("/hosts/sign_up");
+    expect(res.status).toBe(200);
+  });
+  it("handle valid query name", async () => {
+    const response = await request.post("/volunteers/sign_up").send({
+      user_name: "ibrahim",
+      first_name: "samer",
+      last_name: "alnajjar",
+      password: "$2b$10$eqYmuEEgRy./wjdIf7dkpO08x/dvj/tzoh71AtA4PvdZBOKGUUunG",
+      description: null,
+      email: "amazin2g.com0",
+      country: "jordan",
+      birth_date: "2021-12-11T22:00:00.000Z",
+      category: "aya yshe",
+      address: "s",
+      rating: null,
+      profile_image: null,
+    });
+    expect(response.status).toBe(200);
+  });
+  it("should successfully get the volunteer profile", async () => {
+    const res = await request.get("/volunteers/sign_up");
+    expect(res.status).toBe(200);
+    
+  });
+  it("should successfully get get the host profile", async () => {
+    const res = await request.get("/sign_up");
+    expect(res.status).toBe(404);
   });
 
   afterAll(async () => {

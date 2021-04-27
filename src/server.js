@@ -242,12 +242,12 @@ function handelChat(req, res) {
 }
 
 // *******************************************************************
-
 // Routes
 
 app.get("/volunteer/:id", bearerVolunteer, handleGetVolunteerProfile);
 app.put("/volunteer/:id", bearerVolunteer, updateVolunteerProfile);
-app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost);
+//From Hereeee
+app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost); // done
 app.get(
   "/volunteer/:id/host/:id/service/:id",
   bearerVolunteer,

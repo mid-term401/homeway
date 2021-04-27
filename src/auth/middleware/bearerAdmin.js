@@ -16,11 +16,12 @@ module.exports = async (req, res, next) => {
         req.user = validUser;
         req.token = validUser.token;
       }
-      console.log("***************", req.user, req.token);
+      // console.log("***************", req.user, req.token);
       next();
     }
   } catch (e) {
-    res.json("Invalid Login");
+    // res.json("Invalid Login");
+    res.status(403)
   }
 
 }
