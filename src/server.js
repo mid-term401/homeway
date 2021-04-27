@@ -232,9 +232,6 @@ async function handleHostSocket(req, res) {
   console.log(hostData.rows);
   let data = {username: hostData.rows[0].user_name, room: hostId};
   res.render("joinroom", {data})
-
-
-    res.render("joinroom", {data});
 }
 
 function handelChat(req, res) {
