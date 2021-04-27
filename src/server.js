@@ -2,8 +2,14 @@
 
 // 3rd Party Resources
 const express = require("express");
+const socketio = require('socket.io')
+const Filter = require('bad-words')
+const http = require("http");
+const { v4: uuidv4 } = require('uuid');
+const bcrypt = require("bcrypt");
 
-const client = require("../DataBase/data")
+
+const client = require("../DataBase/data");
 
 const cors = require("cors");
 require("dotenv").config();
@@ -20,26 +26,28 @@ const notFound = require("./error-handlers/404.js");
 const app = express();
 app.use(cors());
 
-
-
 const Router = express.Router();
 
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(__dirname + "../public"));
+// app.use(express.static(__dirname + "../public"));
 app.set("views", __dirname + "/../public/views");
 app.engine("html", require("ejs").renderFile);
 app.set("view engine", "html");
 
-// Requiring files 
+// Requiring files
 const basicAuth = require("./auth/middleware/basic");
 const basicAdmin = require("./auth/middleware/basicAdmin");
 const bearerAuth = require("./auth/middleware/bearer");
 const bearerVolunteer = require("./auth/middleware/bearerVolunteer");
 const bearerHost = require("./auth/middleware/bearerHost");
+const { generateMessage } = require('./utils/messages')
+const {addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users')
 
-const {  handleSearchBar,
+
+const {
+  handleSearchBar,
   handleDisplaySearch,
   handleHome,
   handleHostForm,
@@ -61,27 +69,207 @@ const {  handleSearchBar,
   deleteServiceProfile,
   handleHostViewingVolunteer,
   handleAdmin,
-  // addAdmin
+  handleAdminHost,
+  handleAdminVolunteer,
+  handleAdminHostService,
+  deleteHostProfile,
+  deleteVolunteerProfile,
+  deleteServiceAdmin,
+  addAdmin,
 } = require("./auth/models/users");
-
-
 
 // Database
 
 // const client = new pg.Client(process.env.DATABASE_URL);
-
 
 // const secretKey = process.env.SECRET_KEY;
 // const secretKeyRefresher = process.env.SECRET_KEY_REFRESHER;
 
 // App Level MW
 app.use(cors());
+// const io = socketio(server)
+//AOuth
+const { OAuth2Client } = require("google-auth-library");
+const CLIENT_ID =
+  "828937553057-8gc5eli5vu3v2oig6rphup580sg33lj4.apps.googleusercontent.com";
+const Gclient = new OAuth2Client(CLIENT_ID);
+
+// Oauth
+
+app.get("/", (req, res) => {
+  res.render("index");
+});
+
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
+app.post("/login", (req, res) => {
+  let token = req.body.token;
+
+  async function verify() {
+    const ticket = await Gclient.verifyIdToken({
+      idToken: token,
+      audience: CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
+    });
+    const payload = ticket.getPayload();
+    const userid = payload["sub"];
+  }
+  verify()
+    .then(() => {
+      res.cookie("session-token", token);
+      res.send("success");
+    })
+    .catch(console.error);
+});
+
+app.get("/profile", checkAuthenticated, (req, res) => {
+  let user = req.user;
+  res.render("profile", { user });
+});
+
+app.get("/protectedRoute", checkAuthenticated, (req, res) => {
+  res.send("This route is protected");
+});
+
+app.get("/logout", (req, res) => {
+  res.clearCookie("session-token");
+  res.redirect("/login");
+});
+
+
+function checkAuthenticated(req, res, next){
+
+  let token = req.cookies['session-token'];
+
+  let user = {};
+  async function verify() {
+    const ticket = await Gclient.verifyIdToken({
+      idToken: token,
+      audience: CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
+    });
+    const payload = ticket.getPayload();
+    user.name = payload.name;
+    user.email = payload.email;
+    user.picture = payload.picture;
+  }
+  verify()
+    .then(() => {
+      req.user = user;
+      next();
+    })
+    .catch((err) => {
+      res.redirect("/login");
+    });
+}
+
+// ****************************SOCKETIO*******************************
+const server = http.createServer(app)
+const io = socketio(server)
+
+//socket
+io.on('connection', (socket) => {
+  console.log('New WebSocket connection')
+
+  socket.on('join', (options, callback) => {
+      const { error, user } = addUser({ id: socket.id, ...options })
+
+      if (error) {
+          return callback(error)
+      }
+
+      socket.join(user.room)
+
+      socket.emit('message', generateMessage(`${user.room}`, `Welcome ${user.username}`))
+      socket.broadcast.to(user.room).emit('message', generateMessage('Admin', `${user.username} has joined!`))
+      io.to(user.room).emit('roomData', {
+          room: user.room,
+          users: getUsersInRoom(user.room)
+      })
+
+      callback()
+  })
+
+  socket.on('sendMessage', (message, callback) => {
+      const user = getUser(socket.id)
+      const filter = new Filter()
+
+      if (filter.isProfane(message)) {
+          return callback('Profanity is not allowed!')
+      }
+
+      io.to(user.room).emit('message', generateMessage(user.username, message))
+      callback()
+  })
+
+  socket.on('disconnect', () => {
+      const user = removeUser(socket.id)
+      if (user) {
+          io.to(user.room).emit('message', generateMessage('Admin', `${user.username} has left!`))
+          io.to(user.room).emit('roomData', {
+              room: user.room,
+              users: getUsersInRoom(user.room)
+          })
+      }
+  })
+})
+
+app.get('/volunteer/:volId/host/:hostId/chat', handleVolunteerSocket)
+app.get('/host/:hostId/volunteer/:volId/chat', handleHostSocket)
+app.get('/chatRoom', handelChat)
+
+
+// Socketio functions
+
+async function handleVolunteerSocket(req, res) {
+  let volId = req.params.volId;
+  let hostId = req.params.hostId;
+  // console.log(id);
+  // const searchQuery = "select * from service where host_id = $1";
+  // let roomId = uuidv4();
+  let roomId = hostId;
+  // const hashedId = await bcrypt.hash(roomId, 10);
+  const volunteerSearch = "select * from volunteer where id = $1;";
+  let volunteerData = await client.query(volunteerSearch, [volId]);
+  console.log(volunteerData.rows[0]);
+  let data = {username: volunteerData.rows[0].user_name, room: hostId};
+  // // console.log(data);
+
+    res.render("joinroom", {data});
+}
+
+async function handleHostSocket(req, res) {
+  let volId = req.params.volId;
+  let hostId = req.params.hostId;
+  const searchHost = "select * from host where id = $1;";
+  let hostData = await client.query(searchHost, [hostId]);
+  // const hashedId = await bcrypt.hash(hostId, 10);
+
+  console.log(hostData.rows);
+  let data = {username: hostData.rows[0].user_name, room: hostId};
+  // console.log(user);
+  res.render("joinroom", {data})
+
+
+    res.render("joinroom", {data});
+}
+
+function handelChat(req, res) {
+  res.render('chat')
+}
+
+// *******************************************************************
 
 // Routes
+
 app.get("/volunteer/:id", bearerVolunteer, handleGetVolunteerProfile);
 app.put("/volunteer/:id", bearerVolunteer, updateVolunteerProfile);
 app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost);
-app.get("/volunteer/:id/host/:id/service/:id", bearerVolunteer, handleVolunteerViewingHostService);
+app.get(
+  "/volunteer/:id/host/:id/service/:id",
+  bearerVolunteer,
+  handleVolunteerViewingHostService
+);
 
 app.get("/host/:id", bearerHost, handleGetHostProfile);
 app.put("/host/:id", bearerHost, updateHostProfile);
@@ -91,49 +279,53 @@ app.get("/host/:id/service/:id", bearerHost, handleOneHostService);
 app.put("/host/:id/service/:id", bearerHost, updateServiceProfile);
 app.delete("/host/:id/service/:id", bearerHost, deleteServiceProfile);
 app.get("/host/:id/volunteer/:id", bearerHost, handleHostViewingVolunteer);
+console.log(handleHome);
 
-// app.get("/", handleHome);
+app.get("/", handleHome);
+
+
+app.get("/volunteer/:id/host/:id", handleHome);
 
 app.get("/volunteers/sign_up", handleVolunteerForm);
-
 app.post("/volunteers/sign_up", handleVolunteerSignup);
-
 app.get("/hosts/sign_up", handleHostForm);
+app.post("/hosts/sign_up", handleHostSignup);
+app.get("/sign_in", handleSignInForm);
+app.post("/sign_in", basicAuth, handleSignIn);
+app.post("/superuser", basicAdmin, handleAdmin);
 
-app.post("/searchResults", bearerAuth, handleSearchBar);
+app.post("/searchResults", handleSearchBar);
 app.get("/searchResults", handleDisplaySearch);
 
-app.post("/hosts/sign_up", handleHostSignup);
 
-app.get("/sign_in", handleSignInForm);
+//admin\\
 
-app.post("/sign_in", basicAuth, handleSignIn);
+app.get("/superuser/host/:id", basicAdmin, handleAdminHost);
+app.put("/superuser/host/:id", basicAdmin, updateHostProfile);
+app.delete("/superuser/host/:id", basicAdmin, deleteHostProfile);
 
-app.post("/superuser", basicAdmin , handleAdmin);
+app.get("/superuser/volunteer/:id", basicAdmin, handleAdminVolunteer);
+app.put("/superuser/volunteer/:id", basicAdmin, updateVolunteerProfile);
+app.delete("/superuser/volunteer/:id", basicAdmin, deleteVolunteerProfile);
 
-// app.post("/superuser" , addAdmin);
-
-
-// function verifyToken(req, res, next) {
-
-// }
-
+app.get("/superuser/service/:id", basicAdmin, handleAdminHostService);
+app.put("/superuser/service/:id", basicAdmin, updateServiceProfile);
+app.delete("/superuser/service/:id", basicAdmin, deleteServiceAdmin);
 
 // Catchalls
-app.use(notFound);
+app.get("/error", (req, res) => {
+  throw new Error("Server Error ");
+});
+app.use("*", notFound);
 app.use(errorHandler);
 
-
-
-
-
-
 module.exports = {
+  server: app,
   start: (PORT) => {
     client
       .connect()
       .then(() => {
-        app.listen(PORT, () => {
+        server.listen(PORT, () => {
           console.log(`SERVER IS HERE  ${PORT}`);
         });
       })
@@ -141,4 +333,4 @@ module.exports = {
         console.log("Error while connecting to the DB ..", error);
       });
   },
-}
+};
