@@ -39,13 +39,9 @@ const basicAdmin = require("./auth/middleware/basicAdmin");
 const bearerAuth = require("./auth/middleware/bearer");
 const bearerVolunteer = require("./auth/middleware/bearerVolunteer");
 const bearerHost = require("./auth/middleware/bearerHost");
-const { generateMessage } = require("./utils/messages");
-const {
-  addUser,
-  removeUser,
-  getUser,
-  getUsersInRoom,
-} = require("./utils/users");
+// const { generateMessage } = require('./utils/messages')
+// const { addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users')
+
 
 const {
   handleSearchBar,
@@ -88,7 +84,6 @@ const {
 
 // App Level MW
 app.use(cors());
-const server = http.createServer(app);
 // const io = socketio(server)
 //AOuth
 const { OAuth2Client } = require("google-auth-library");
@@ -139,9 +134,10 @@ app.get("/logout", (req, res) => {
   res.redirect("/login");
 });
 
-function checkAuthenticated(req, res, next) {
-  let token = req.cookies["session-token"];
-  console.log(token);
+
+function checkAuthenticated(req, res, next){
+
+  let token = req.cookies['session-token'];
 
   let user = {};
   async function verify() {
@@ -165,6 +161,8 @@ function checkAuthenticated(req, res, next) {
 }
 
 // ****************************SOCKETIO*******************************
+const server = http.createServer(app)
+// const io = socketio(server)
 
 // io.on('connection', (socket) => {
 //   console.log('New WebSocket connection')
@@ -203,19 +201,33 @@ function checkAuthenticated(req, res, next) {
 //   socket.on('disconnect', () => {
 //       const user = removeUser(socket.id)
 
-//       if (user) {
-//           io.to(user.room).emit('message', generateMessage('Admin', `${user.username} has left!`))
-//           io.to(user.room).emit('roomData', {
-//               room: user.room,
-//               users: getUsersInRoom(user.room)
-//           })
-//       }
-//   })
+// io.on('connection', (socket) => {
+// 	console.log('New user connected')
+
+// 	//default username
+// 	socket.username = "Anonymous"
+
+//     //listen on change_username
+//     socket.on('change_username', (data) => {
+//         socket.username = data.username
+//     })
+
+//     //listen on new_message
+//     socket.on('new_message', (data) => {
+//         //broadcast the new message
+//         io.sockets.emit('new_message', {message : data.message, username : socket.username});
+//     })
+
+//     //listen on typing
+//     socket.on('typing', (data) => {
+//     	socket.broadcast.emit('typing', {username : socket.username})
+//     })
 // })
 
 // *******************************************************************
 
 // Routes
+
 app.get("/volunteer/:id", bearerVolunteer, handleGetVolunteerProfile);
 app.put("/volunteer/:id", bearerVolunteer, updateVolunteerProfile);
 app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost);
@@ -234,6 +246,7 @@ app.put("/host/:id/service/:id", bearerHost, updateServiceProfile);
 app.delete("/host/:id/service/:id", bearerHost, deleteServiceProfile);
 app.get("/host/:id/volunteer/:id", bearerHost, handleHostViewingVolunteer);
 
+
 app.get("/", handleHome);
 
 app.get("/volunteers/sign_up", handleVolunteerForm);
@@ -247,6 +260,7 @@ app.post("/superuser", basicAdmin, handleAdmin);
 app.post("/searchResults", handleSearchBar);
 app.get("/searchResults", handleDisplaySearch);
 
+
 //admin\\
 
 app.get("/superuser/host/:id", basicAdmin, handleAdminHost);
@@ -257,9 +271,9 @@ app.get("/superuser/volunteer/:id", basicAdmin, handleAdminVolunteer);
 app.put("/superuser/volunteer/:id", basicAdmin, updateVolunteerProfile);
 app.delete("/superuser/volunteer/:id", basicAdmin, deleteVolunteerProfile);
 
-app.get("/superuser/host/:id/service/:id", basicAdmin, handleAdminHostService);
-app.put("/superuser/host/:id/service/:id", basicAdmin, updateServiceProfile);
-app.delete("/superuser/host/:id/service/:id", basicAdmin, deleteServiceAdmin);
+app.get("/superuser/service/:id", basicAdmin, handleAdminHostService);
+app.put("/superuser/service/:id", basicAdmin, updateServiceProfile);
+app.delete("/superuser/service/:id", basicAdmin, deleteServiceAdmin);
 
 // function verifyToken(req, res, next) {
 
@@ -322,7 +336,7 @@ module.exports = {
     client
       .connect()
       .then(() => {
-        app.listen(PORT, () => {
+        server.listen(PORT, () => {
           console.log(`SERVER IS HERE  ${PORT}`);
         });
       })
