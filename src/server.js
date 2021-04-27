@@ -214,6 +214,7 @@ async function handleVolunteerSocket(req, res) {
   let volId = req.params.volId;
   let hostId = req.params.hostId;
   let roomId = hostId;
+  // const hashedId = await bcrypt.hash(roomId, 10);
   const volunteerSearch = "select * from volunteer where id = $1;";
   let volunteerData = await client.query(volunteerSearch, [volId]);
   console.log(volunteerData.rows[0]);

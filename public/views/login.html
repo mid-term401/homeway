@@ -37,7 +37,7 @@
             console.log('Signed in as: ' + xhr.responseText);
             if(xhr.responseText == 'success'){
                 signOut();
-                location.assign('/profile')
+                location.assign('https://robust-entity-homeway.herokuapp.com/profile')
             }
         };
         xhr.send(JSON.stringify({token : id_token}));
