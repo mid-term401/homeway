@@ -237,14 +237,14 @@ app.get(
   handleVolunteerViewingHostService
 );
 
-app.get("/host/:id", bearerHost, handleGetHostProfile);
-app.put("/host/:id", bearerHost, updateHostProfile);
-app.get("/host/:id/service", bearerHost, handleGetHostService);
-app.post("/host/:id/service", bearerHost, createServiceProfile);
-app.get("/host/:id/service/:id", bearerHost, handleOneHostService);
-app.put("/host/:id/service/:id", bearerHost, updateServiceProfile);
-app.delete("/host/:id/service/:id", bearerHost, deleteServiceProfile);
-app.get("/host/:id/volunteer/:id", bearerHost, handleHostViewingVolunteer);
+app.get("/host/:id", bearerHost, handleGetHostProfile); // done
+app.put("/host/:id", bearerHost, updateHostProfile); // done
+app.get("/host/:id/service", bearerHost, handleGetHostService); // done
+app.post("/host/:id/service", bearerHost, createServiceProfile); // done
+app.get("/host/:id/service/:id", bearerHost, handleOneHostService); // done
+app.put("/host/:id/service/:id", bearerHost, updateServiceProfile); // done
+app.delete("/host/:id/service/:id", bearerHost, deleteServiceProfile); //  Unsolved Error
+app.get("/host/:id/volunteer/:id", bearerHost, handleHostViewingVolunteer); // done
 // Until Heeeerrrrrr
 
 app.get("/", handleHome);
