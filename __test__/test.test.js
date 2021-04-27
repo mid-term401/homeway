@@ -43,7 +43,7 @@ describe("Server", () => {
       });
       expect(response.status).toEqual(200);
     });
-    it("should successfully return data from API", async () => {
+    it("should successfully display data from API", async () => {
       const response = await request.get("/searchResults");
       expect(response.status).toEqual(200);
     });
@@ -220,7 +220,7 @@ describe("Server", () => {
               "base64"
             )
         );
-      expect(response.status).toEqual(200);
+      expect(response.status).toEqual(302);
     });
     it("should admin delete host profile", async () => {
       const response = await request
@@ -232,7 +232,7 @@ describe("Server", () => {
               "base64"
             )
         );
-      expect(response.status).toEqual(200);
+      expect(response.status).toEqual(302);
     });
     it("should admin delete service profile", async () => {
       const response = await request
@@ -244,7 +244,7 @@ describe("Server", () => {
               "base64"
             )
         );
-      expect(response.status).toEqual(200);
+      expect(response.status).toEqual(302);
     });
     it("should admin go to the admin page", async () => {
       const response = await request
@@ -383,7 +383,7 @@ describe("Server", () => {
       });
 
     });
-<<<<<<< HEAD
+
     expect(response.status).toEqual(200);
   });
   // Test Signing in for volunteer and host
@@ -438,16 +438,14 @@ describe("Server", () => {
     });
     expect(response.status).toBe(200);
   });
-  it("should successfully get get the host profile", async () => {
+  it("should successfully get the volunteer profile", async () => {
     const res = await request.get("/volunteers/sign_up");
     expect(res.status).toBe(200);
     
   });
   it("should successfully get get the host profile", async () => {
     const res = await request.get("/sign_up");
-    expect(res.status).toBe(200);
-=======
->>>>>>> d8da70bface83baac36dcd0a075c23288562e51d
+    expect(res.status).toBe(404);
   });
 
   afterAll(async () => {

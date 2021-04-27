@@ -5,7 +5,7 @@ const superTest = require("supertest");
 const base64 = require("base-64");
 const client = require("../DataBase/data");
 const request = superTest(server);
-const middleware = require('../src/auth/middleware/bearer');
+const middleware = require('../src/auth/middleware/bearerHost');
 const jwt = require('jsonwebtoken');
 
 process.env.SECRET = "toes";
@@ -31,7 +31,7 @@ let user={
     const next = jest.fn();
 
     describe("user authentication", () => {
-      it("fails a login for a user with an incorrect token", () => {
+      it("fails a login for a user (host) with an incorrect token", () => {
         req.headers = {
           authorization: "Bearer thisisabadtoken",
         };
