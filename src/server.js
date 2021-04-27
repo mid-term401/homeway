@@ -2,9 +2,10 @@
 
 // 3rd Party Resources
 const express = require("express");
-// const socketio = require('socket.io')
-// const Filter = require('bad-words')
+const socketio = require('socket.io')
+const Filter = require('bad-words')
 const http = require("http");
+const { v4: uuidv4 } = require('uuid');
 
 const client = require("../DataBase/data");
 
@@ -15,7 +16,6 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 // Esoteric Resources
-// const aRouter = require("./auth/routes/routes.js");
 const errorHandler = require("./error-handlers/500");
 const notFound = require("./error-handlers/404.js");
 
@@ -28,7 +28,7 @@ const Router = express.Router();
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(__dirname + "../public"));
+// app.use(express.static(__dirname + "../public"));
 app.set("views", __dirname + "/../public/views");
 app.engine("html", require("ejs").renderFile);
 app.set("view engine", "html");
@@ -39,8 +39,8 @@ const basicAdmin = require("./auth/middleware/basicAdmin");
 const bearerAuth = require("./auth/middleware/bearer");
 const bearerVolunteer = require("./auth/middleware/bearerVolunteer");
 const bearerHost = require("./auth/middleware/bearerHost");
-// const { generateMessage } = require('./utils/messages')
-// const { addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users')
+const { generateMessage } = require('./utils/messages')
+const {addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users')
 
 
 const {
@@ -75,16 +75,8 @@ const {
   addAdmin,
 } = require("./auth/models/users");
 
-// Database
-
-// const client = new pg.Client(process.env.DATABASE_URL);
-
-// const secretKey = process.env.SECRET_KEY;
-// const secretKeyRefresher = process.env.SECRET_KEY_REFRESHER;
-
 // App Level MW
 app.use(cors());
-// const io = socketio(server)
 //AOuth
 const { OAuth2Client } = require("google-auth-library");
 const CLIENT_ID =
@@ -162,67 +154,92 @@ function checkAuthenticated(req, res, next){
 
 // ****************************SOCKETIO*******************************
 const server = http.createServer(app)
-// const io = socketio(server)
+const io = socketio(server)
 
-// io.on('connection', (socket) => {
-//   console.log('New WebSocket connection')
+//socket
+io.on('connection', (socket) => {
+  console.log('New WebSocket connection')
 
-//   socket.on('join', (options, callback) => {
-//       const { error, user } = addUser({ id: socket.id, ...options })
+  socket.on('join', (options, callback) => {
+      const { error, user } = addUser({ id: socket.id, ...options })
 
-//       if (error) {
-//           return callback(error)
-//       }
+      if (error) {
+          return callback(error)
+      }
 
-//       socket.join(user.room)
+      socket.join(user.room)
 
-//       socket.emit('message', generateMessage('Admin', 'Welcome!'))
-//       socket.broadcast.to(user.room).emit('message', generateMessage('Admin', `${user.username} has joined!`))
-//       io.to(user.room).emit('roomData', {
-//           room: user.room,
-//           users: getUsersInRoom(user.room)
-//       })
+      socket.emit('message', generateMessage(`${user.room}`, `Welcome ${user.username}`))
+      socket.broadcast.to(user.room).emit('message', generateMessage('Admin', `${user.username} has joined!`))
+      io.to(user.room).emit('roomData', {
+          room: user.room,
+          users: getUsersInRoom(user.room)
+      })
 
-//       callback()
-//   })
+      callback()
+  })
 
-//   socket.on('sendMessage', (message, callback) => {
-//       const user = getUser(socket.id)
-//       const filter = new Filter()
+  socket.on('sendMessage', (message, callback) => {
+      const user = getUser(socket.id)
+      const filter = new Filter()
 
-//       if (filter.isProfane(message)) {
-//           return callback('Profanity is not allowed!')
-//       }
+      if (filter.isProfane(message)) {
+          return callback('Profanity is not allowed!')
+      }
 
-//       io.to(user.room).emit('message', generateMessage(user.username, message))
-//       callback()
-//   })
+      io.to(user.room).emit('message', generateMessage(user.username, message))
+      callback()
+  })
 
-//   socket.on('disconnect', () => {
-//       const user = removeUser(socket.id)
+  socket.on('disconnect', () => {
+      const user = removeUser(socket.id)
+      if (user) {
+          io.to(user.room).emit('message', generateMessage('Admin', `${user.username} has left!`))
+          io.to(user.room).emit('roomData', {
+              room: user.room,
+              users: getUsersInRoom(user.room)
+          })
+      }
+  })
+})
 
-// io.on('connection', (socket) => {
-// 	console.log('New user connected')
+app.get('/volunteer/:volId/host/:hostId/chat', handleVolunteerSocket)
+app.get('/host/:hostId/volunteer/:volId/chat', handleHostSocket)
+app.get('/chatRoom', handelChat)
 
-// 	//default username
-// 	socket.username = "Anonymous"
 
-//     //listen on change_username
-//     socket.on('change_username', (data) => {
-//         socket.username = data.username
-//     })
+// Socketio functions
 
-//     //listen on new_message
-//     socket.on('new_message', (data) => {
-//         //broadcast the new message
-//         io.sockets.emit('new_message', {message : data.message, username : socket.username});
-//     })
+async function handleVolunteerSocket(req, res) {
+  let volId = req.params.volId;
+  let hostId = req.params.hostId;
+  let roomId = hostId;
+  const volunteerSearch = "select * from volunteer where id = $1;";
+  let volunteerData = await client.query(volunteerSearch, [volId]);
+  console.log(volunteerData.rows[0]);
+  let data = {username: volunteerData.rows[0].user_name, room: hostId};
+  // // console.log(data);
 
-//     //listen on typing
-//     socket.on('typing', (data) => {
-//     	socket.broadcast.emit('typing', {username : socket.username})
-//     })
-// })
+    res.render("joinroom", {data});
+}
+
+async function handleHostSocket(req, res) {
+  let volId = req.params.volId;
+  let hostId = req.params.hostId;
+  const searchHost = "select * from host where id = $1;";
+  let hostData = await client.query(searchHost, [hostId]);
+
+  console.log(hostData.rows);
+  let data = {username: hostData.rows[0].user_name, room: hostId};
+  res.render("joinroom", {data})
+
+
+    res.render("joinroom", {data});
+}
+
+function handelChat(req, res) {
+  res.render('chat')
+}
 
 // *******************************************************************
 
@@ -245,9 +262,12 @@ app.get("/host/:id/service/:id", bearerHost, handleOneHostService);
 app.put("/host/:id/service/:id", bearerHost, updateServiceProfile);
 app.delete("/host/:id/service/:id", bearerHost, deleteServiceProfile);
 app.get("/host/:id/volunteer/:id", bearerHost, handleHostViewingVolunteer);
-
+console.log(handleHome);
 
 app.get("/", handleHome);
+
+
+app.get("/volunteer/:id/host/:id", handleHome);
 
 app.get("/volunteers/sign_up", handleVolunteerForm);
 app.post("/volunteers/sign_up", handleVolunteerSignup);
@@ -274,54 +294,6 @@ app.delete("/superuser/volunteer/:id", basicAdmin, deleteVolunteerProfile);
 app.get("/superuser/service/:id", basicAdmin, handleAdminHostService);
 app.put("/superuser/service/:id", basicAdmin, updateServiceProfile);
 app.delete("/superuser/service/:id", basicAdmin, deleteServiceAdmin);
-
-// function verifyToken(req, res, next) {
-
-// }
-
-////////////////////////////////////
-// Routes
-// app.get("/volunteer/:id", bearerVolunteer, handleGetVolunteerProfile);
-// app.put("/volunteer/:id", bearerVolunteer, updateVolunteerProfile);
-// app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost);
-// app.get(
-//   "/volunteer/:id/host/:id/service/:id",
-//   bearerVolunteer,
-//   handleVolunteerViewingHostService
-// );
-
-// app.get("/host/:id", bearerHost, handleGetHostProfile);
-// app.put("/host/:id", bearerHost, updateHostProfile);
-// app.get("/host/:id/service", bearerHost, handleGetHostService);
-// app.post("/host/:id/service", bearerHost, createServiceProfile);
-// app.get("/host/:id/service/:id", bearerHost, handleOneHostService);
-// app.put("/host/:id/service/:id", bearerHost, updateServiceProfile);
-// app.delete("/host/:id/service/:id", bearerHost, deleteServiceProfile);
-// app.get("/host/:id/volunteer/:id", bearerHost, handleHostViewingVolunteer);
-
-// app.get("/", handleHome);
-
-// app.get("/volunteers/sign_up", handleVolunteerForm);
-
-// app.post("/volunteers/sign_up", handleVolunteerSignup);
-
-// app.get("/hosts/sign_up", handleHostForm);
-
-// app.post("/hosts/sign_up", handleHostSignup);
-
-// app.get("/sign_in", handleSignInForm);
-
-// app.post("/sign_in", basicAuth, handleSignIn);
-
-// app.post("/superuser", basicAdmin, handleAdmin);
-
-// app.post("/superuser" , addAdmin);
-
-// app.post("/superuserAdmin",basicAdmin, addAdmin);
-
-// function verifyToken(req, res, next) {
-
-// }
 
 // Catchalls
 app.get("/error", (req, res) => {

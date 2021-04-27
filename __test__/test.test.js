@@ -382,6 +382,20 @@ describe("Server", () => {
         expect(token).toBeTruthy();
       });
 
+      it('should find user data when login on PUT /volunteer/:id', async () => {
+        const user = {user_name:"samer", id: 1}
+        const token = jwt.sign(user, process.env.SECRET || "wHaT");
+        const response = await request
+          .post('/volunteer/1')
+          .set(
+            'Authorization',
+            'bearer ' + token
+          );
+          console.log(response.body);
+        // expect(response.status).toEqual(200);
+        // expect(response.body).toEqual({ error: 'Page Not Found' });
+      });
+
     });
   });
 

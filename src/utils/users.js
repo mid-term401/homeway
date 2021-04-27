@@ -1,10 +1,10 @@
+
 const users = []
 
 const addUser = ({ id, username, room }) => {
     // Clean the data
     username = username.trim().toLowerCase()
     room = room.trim().toLowerCase()
-
     // Validate the data
     if (!username || !room) {
         return {
@@ -32,7 +32,6 @@ const addUser = ({ id, username, room }) => {
 
 const removeUser = (id) => {
     const index = users.findIndex((user) => user.id === id)
-
     if (index !== -1) {
         return users.splice(index, 1)[0]
     }
