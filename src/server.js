@@ -6,8 +6,6 @@ const socketio = require('socket.io')
 const Filter = require('bad-words')
 const http = require("http");
 const { v4: uuidv4 } = require('uuid');
-const bcrypt = require("bcrypt");
-
 
 const client = require("../DataBase/data");
 
@@ -18,7 +16,6 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 // Esoteric Resources
-// const aRouter = require("./auth/routes/routes.js");
 const errorHandler = require("./error-handlers/500");
 const notFound = require("./error-handlers/404.js");
 
@@ -78,16 +75,8 @@ const {
   addAdmin,
 } = require("./auth/models/users");
 
-// Database
-
-// const client = new pg.Client(process.env.DATABASE_URL);
-
-// const secretKey = process.env.SECRET_KEY;
-// const secretKeyRefresher = process.env.SECRET_KEY_REFRESHER;
-
 // App Level MW
 app.use(cors());
-// const io = socketio(server)
 //AOuth
 const { OAuth2Client } = require("google-auth-library");
 const CLIENT_ID =
@@ -224,11 +213,7 @@ app.get('/chatRoom', handelChat)
 async function handleVolunteerSocket(req, res) {
   let volId = req.params.volId;
   let hostId = req.params.hostId;
-  // console.log(id);
-  // const searchQuery = "select * from service where host_id = $1";
-  // let roomId = uuidv4();
   let roomId = hostId;
-  // const hashedId = await bcrypt.hash(roomId, 10);
   const volunteerSearch = "select * from volunteer where id = $1;";
   let volunteerData = await client.query(volunteerSearch, [volId]);
   console.log(volunteerData.rows[0]);
@@ -243,11 +228,9 @@ async function handleHostSocket(req, res) {
   let hostId = req.params.hostId;
   const searchHost = "select * from host where id = $1;";
   let hostData = await client.query(searchHost, [hostId]);
-  // const hashedId = await bcrypt.hash(hostId, 10);
 
   console.log(hostData.rows);
   let data = {username: hostData.rows[0].user_name, room: hostId};
-  // console.log(user);
   res.render("joinroom", {data})
 
 
