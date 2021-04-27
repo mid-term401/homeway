@@ -15,10 +15,6 @@ CREATE TABLE IF NOT EXISTS volunteer (
   address VARCHAR (50) NOT NULL,
   rating int,
   profile_image text,
-  -- volunteerRoom_id INT ,
-  -- FOREIGN KEY (volunteerRoom_id) REFERENCES room (id) ON DELETE CASCADE,
-  -- room_id text ,
-  -- FOREIGN KEY (room_id) REFERENCES room (id) ON DELETE CASCADE,
   token text
 );
 CREATE TABLE IF NOT EXISTS host (
@@ -35,27 +31,14 @@ CREATE TABLE IF NOT EXISTS host (
   address VARCHAR (50) NOT NULL,
   rating int,
   profile_image text,
-  -- hostRoom_id INT ,
-  -- FOREIGN KEY (hostRoom_id) REFERENCES room (id) ON DELETE CASCADE,
-  -- room_id text ,
-  -- FOREIGN KEY (room_id) REFERENCES room (id) ON DELETE CASCADE,
   token text
 );
 
--- CREATE TABLE IF NOT EXISTS room (
---   id SERIAL PRIMARY KEY,
---   volunteerRoom_id INT ,
---   FOREIGN KEY (volunteerRoom_id) REFERENCES volunteer (id) ON DELETE CASCADE,
---   hostRoom_id INT ,
---   FOREIGN KEY (hostRoom_id) REFERENCES host (id) ON DELETE CASCADE
--- );
 CREATE TABLE IF NOT EXISTS sign_in (
   id SERIAL PRIMARY KEY,
   user_name VARCHAR (50) NOT NULL UNIQUE,
   Password VARCHAR (255) NOT NULL
 );
--- ALTER TABLE sign_in ADD COLUMN volunteer_id INT REFERENCES volunteer(id)
--- ALTER TABLE sign_in ADD COLUMN host_id INT REFERENCES host(id)
 CREATE TABLE IF NOT EXISTS Service (
   id SERIAL PRIMARY KEY,
   title VARCHAR (50) NOT NULL,
@@ -74,7 +57,6 @@ CREATE TABLE IF NOT EXISTS Service (
   host_id INT ,
   FOREIGN KEY (host_id) REFERENCES host (id) ON DELETE CASCADE
 );
--- ALTER TABLE service ADD COLUMN host_id INT REFERENCES host(id)
 CREATE TABLE IF NOT EXISTS admin (
   id SERIAL PRIMARY KEY,
   user_name VARCHAR (50) NOT NULL UNIQUE ,
@@ -90,13 +72,7 @@ CREATE TABLE IF NOT EXISTS admin_sign_in (
   confirmation_code VARCHAR (50) NOT NULL,
   Password VARCHAR (255) NOT NULL
 );
--- ALTER TABLE admin_sign_in ADD COLUMN admin_id INT REFERENCES admin(id)
 CREATE TABLE IF NOT EXISTS feedback (
   id SERIAL PRIMARY KEY,
   description text
 );
--- ALTER TABLE feedback ADD COLUMN volunteer_id INT REFERENCES volunteer(id)
--- CREATE TABLE IF NOT EXISTS hostservice (
---   id SERIAL PRIMARY KEY,
---   description text
--- );
