@@ -22,6 +22,7 @@
   "homepage": "https://github.com/mid-term401/homeway#readme",
   "dependencies": {
     "@admin-bro/sequelize": "^1.2.1",
+    "@code-fellows/supergoose": "^1.1.0",
     "admin-bro": "^4.0.1",
     "admin-bro-expressjs": "^2.1.1",
     "admin-bro-sequelizejs": "^0.5.1",
@@ -43,6 +44,7 @@
     "pgtest": "^0.2.3",
     "sequelize": "^6.6.2",
     "superagent": "^6.1.0",
+    "supergoose": "^0.2.6",
     "supertest": "^6.1.3"
   },
   "devDependencies": {

@@ -225,11 +225,11 @@ const server = http.createServer(app)
 // })
 
 // *******************************************************************
-
 // Routes
 
 app.get("/volunteer/:id", bearerVolunteer, handleGetVolunteerProfile);
 app.put("/volunteer/:id", bearerVolunteer, updateVolunteerProfile);
+//From Hereeee
 app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost);
 app.get(
   "/volunteer/:id/host/:id/service/:id",
@@ -245,7 +245,7 @@ app.get("/host/:id/service/:id", bearerHost, handleOneHostService);
 app.put("/host/:id/service/:id", bearerHost, updateServiceProfile);
 app.delete("/host/:id/service/:id", bearerHost, deleteServiceProfile);
 app.get("/host/:id/volunteer/:id", bearerHost, handleHostViewingVolunteer);
-
+// Until Heeeerrrrrr
 
 app.get("/", handleHome);
 
