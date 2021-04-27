@@ -3,8 +3,8 @@ const http = require('http')
 const express = require('express')
 const socketio = require('socket.io')
 const Filter = require('bad-words')
-const { generateMessage } = require('../../../src/utils/messages')
-const { addUser, removeUser, getUser, getUsersInRoom } = require('../../../src/utils/users')
+const { generateMessage } = require('../../src/utils/messages')
+const { addUser, removeUser, getUser, getUsersInRoom } = require('../../src/utils/users')
 
 const app = express()
 const server = http.createServer(app)
@@ -64,6 +64,6 @@ io.on('connection', (socket) => {
     })
 })
 
-server.listen(port, () => {
-    console.log(`Server is up on port ${port}!`)
+server.listen(3000, () => {
+    console.log(`Server is up on port ${3000}!`)
 })

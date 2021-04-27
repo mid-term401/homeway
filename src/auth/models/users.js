@@ -272,7 +272,7 @@ async function handleGetVolunteerProfile(req, res) {
   let id = req.params.id;
   let selectQ = `select * from volunteer where id = $1;`;
   let data = await client.query(selectQ, [id]);
-  res.json(data.rows[0]);
+  res.send(data.rows[0]);
 }
 async function handleAdminVolunteer(req, res) {
   let id = req.params.id;
