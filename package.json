@@ -4,7 +4,7 @@
   "description": "- [Heroku Deployment Link]()",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node index.js",
     "test-watch": "jest --watchAll",
     "test": "jest --coverage --verbose",
     "sequelize": "cross-env NODE_PATH=. sequelize"
