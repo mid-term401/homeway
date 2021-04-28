@@ -33,6 +33,7 @@
     * Host can edit and delete a service.
     * Host can accept or decline a volunteer
  - Acceptance Tests:
+
     * Basic Auth
     * Bearer Auth
     * ACL/ only authorized users can access hosts information.
@@ -100,4 +101,109 @@
 
 
 
+### Routes:
+
+- first route:
+
+      /hosts/sign_up
+
+- Expected Output
+
+      "success Host created successfully"
+
+- second route:
+
+       /sign_in
+
+- Expected Output:
+
+      "username": "ib123",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6ImliMTIzIiwiaWF0IjoxNjE5NDk0NzAyfQ.iBuqhNzdb-sqEbT8I4Qv1cLQ2RtnKjZ64JWyLVkA37I"
+
+
+- third route: 
+
+      /searchResults
+
+- Expected Output:
+
+      "country":"jordan",
+      "title":"farmer"
+ 
+ - fourth route:
+
+       /volunteers/sign_up
+
+- Expected Output:
+
+      "success Volunteer created successfully"
+
+- fifth route:
+
+      /host/1
+
+- Expected Output:
+
+        "id": 1,
+        "user_name": "ib123",
+        "first_name": "samer",
+        "last_name": "alnajjar",
+        "password": "$2b$10$huOWeJ9/xWnnr252N.w4.O413nCz2TZ/QkB8LufKM929iBDI963TO",
+        "description": null,
+        "email": "a123",
+        "country": "s",
+        "birth_date": "2021-12-11T22:00:00.000Z",
+        "category": "farming",
+        "address": "s",
+        "rating": null,
+        "profile_image": null,
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6ImliMTIzIiwiaWF0IjoxNjE5NDk0NzAyfQ.iBuqhNzdb-sqEbT8I4Qv1cLQ2RtnKjZ64JWyLVkA37I"
+	
+- six route:
+
+      /superuser/
+
+- Expected Output:
+
+      "volunteers": [
+        {
+            "id": 1,
+            "user_name": "samer2012",
+            "first_name": "samer",
+            "last_name": "alnajjar",
+            "password": "$2b$10$oNVSIG0DQ6V9yKDqYQIFyOY9AGnPagRkEQ.XUiIn2eQ5s/Qpmw7WO",
+            "description": null,
+            "email": "dfvdfvdfv",
+            "country": "s",
+            "birth_date": "2021-12-10T22:00:00.000Z",
+            "skills": "swimming",
+            "passport": "sdmakdcsdc",
+            "address": "s",
+            "rating": null,
+            "profile_image": null,
+            "token": null
+        }
+       ],
+      "hosts": [
+        {
+            "id": 1,
+            "user_name": "ib123",
+            "first_name": "samer",
+            "last_name": "alnajjar",
+            "password": "$2b$10$huOWeJ9/xWnnr252N.w4.O413nCz2TZ/QkB8LufKM929iBDI963TO",
+            "description": null,
+            "email": "a123",
+            "country": "s",
+            "birth_date": "2021-12-11T22:00:00.000Z",
+            "category": "farming",
+            "address": "s",
+            "rating": null,
+            "profile_image": null,
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6ImliMTIzIiwiaWF0IjoxNjE5NDk0NzAyfQ.iBuqhNzdb-sqEbT8I4Qv1cLQ2RtnKjZ64JWyLVkA37I"
+        }
+      ],
+      "services": []
+      
+      
+      
 
