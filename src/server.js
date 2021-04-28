@@ -39,8 +39,6 @@ const basicAdmin = require("./auth/middleware/basicAdmin");
 const bearerAuth = require("./auth/middleware/bearer");
 const bearerVolunteer = require("./auth/middleware/bearerVolunteer");
 const bearerHost = require("./auth/middleware/bearerHost");
-// const { generateMessage } = require('./messages')
-// const {addUser, removeUser, getUser, getUsersInRoom } = require('./users')
 
 
 const {
