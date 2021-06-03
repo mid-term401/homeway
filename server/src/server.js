@@ -40,15 +40,9 @@ const bearerAuth = require("./auth/middleware/bearer");
 const bearerVolunteer = require("./auth/middleware/bearerVolunteer");
 const bearerHost = require("./auth/middleware/bearerHost");
 const { generateMessage } = require("./utils/messages");
-const {
-  addUser,
-  removeUser,
-  getUser,
-  getUsersInRoom,
-} = require("./utils/users");
+const { addUser, removeUser, getUser, getUsersInRoom } = require("./utils/users");
 // const { generateMessage } = require('./messages')
 // const {addUser, removeUser, getUser, getUsersInRoom } = require('./users')
-
 
 /* istanbul ignore next */
 const {
@@ -87,8 +81,7 @@ const {
 app.use(cors());
 //AOuth
 const { OAuth2Client } = require("google-auth-library");
-const CLIENT_ID =
-  "828937553057-8gc5eli5vu3v2oig6rphup580sg33lj4.apps.googleusercontent.com";
+const CLIENT_ID = "828937553057-8gc5eli5vu3v2oig6rphup580sg33lj4.apps.googleusercontent.com";
 const Gclient = new OAuth2Client(CLIENT_ID);
 
 // Oauth
@@ -162,62 +155,60 @@ function checkAuthenticated(req, res, next) {
 const server = http.createServer(app);
 const io = socketio(server);
 
-const users = []
+const users = [];
 
 const addUser = ({ id, username, room }) => {
-    // Clean the data
-    username = username.trim().toLowerCase()
-    room = room.trim().toLowerCase()
-    // Validate the data
-    if (!username || !room) {
-        return {
-            error: 'Username and room are required!'
-        }
-    }
+  // Clean the data
+  username = username.trim().toLowerCase();
+  room = room.trim().toLowerCase();
+  // Validate the data
+  if (!username || !room) {
+    return {
+      error: "Username and room are required!",
+    };
+  }
 
-    // Check for existing user
-    const existingUser = users.find((user) => {
-        return user.room === room && user.username === username
-    })
+  // Check for existing user
+  const existingUser = users.find((user) => {
+    return user.room === room && user.username === username;
+  });
 
-    // Validate username
-    if (existingUser) {
-        return {
-            error: 'Username is in use!'
-        }
-    }
+  // Validate username
+  if (existingUser) {
+    return {
+      error: "Username is in use!",
+    };
+  }
 
-    // Store user
-    const user = { id, username, room }
-    users.push(user)
-    return { user }
-}
+  // Store user
+  const user = { id, username, room };
+  users.push(user);
+  return { user };
+};
 
 const removeUser = (id) => {
-    const index = users.findIndex((user) => user.id === id)
-    if (index !== -1) {
-        return users.splice(index, 1)[0]
-    }
-}
+  const index = users.findIndex((user) => user.id === id);
+  if (index !== -1) {
+    return users.splice(index, 1)[0];
+  }
+};
 
 const getUser = (id) => {
-    return users.find((user) => user.id === id)
-}
+  return users.find((user) => user.id === id);
+};
 
 const getUsersInRoom = (room) => {
-    room = room.trim().toLowerCase()
-    return users.filter((user) => user.room === room)
-}
+  room = room.trim().toLowerCase();
+  return users.filter((user) => user.room === room);
+};
 
 const generateMessage = (username, text) => {
   return {
-      username,
-      text,
-      createdAt: new Date().getTime()
-  }
-}
-
-
+    username,
+    text,
+    createdAt: new Date().getTime(),
+  };
+};
 
 //socket
 io.on("connection", (socket) => {
@@ -232,16 +223,10 @@ io.on("connection", (socket) => {
 
     socket.join(user.room);
 
-    socket.emit(
-      "message",
-      generateMessage(`${user.room}`, `Welcome ${user.username}`)
-    );
+    socket.emit("message", generateMessage(`${user.room}`, `Welcome ${user.username}`));
     socket.broadcast
       .to(user.room)
-      .emit(
-        "message",
-        generateMessage("Admin", `${user.username} has joined!`)
-      );
+      .emit("message", generateMessage("Admin", `${user.username} has joined!`));
     io.to(user.room).emit("roomData", {
       room: user.room,
       users: getUsersInRoom(user.room),
@@ -265,10 +250,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     const user = removeUser(socket.id);
     if (user) {
-      io.to(user.room).emit(
-        "message",
-        generateMessage("Admin", `${user.username} has left!`)
-      );
+      io.to(user.room).emit("message", generateMessage("Admin", `${user.username} has left!`));
       io.to(user.room).emit("roomData", {
         room: user.room,
         users: getUsersInRoom(user.room),
@@ -303,15 +285,8 @@ async function handleHostSocket(req, res) {
   let hostData = await client.query(searchHost, [hostId]);
 
   console.log(hostData.rows);
-<<<<<<< HEAD
   let data = { username: hostData.rows[0].user_name, room: hostId };
   res.render("joinroom", { data });
-
-  res.render("joinroom", { data });
-=======
-  let data = {username: hostData.rows[0].user_name, room: hostId};
-  res.render("joinroom", {data})
->>>>>>> 2ae6a7978239f847c8716ac608a2a8cbba26c0d8
 }
 
 function handelChat(req, res) {
@@ -325,11 +300,7 @@ app.get("/volunteer/:id", bearerVolunteer, handleGetVolunteerProfile);
 app.put("/volunteer/:id", bearerVolunteer, updateVolunteerProfile);
 //From Hereeee
 app.get("/volunteer/:id/host/:id", bearerVolunteer, handleVolunteerViewingHost); // done
-app.get(
-  "/volunteer/:id/host/:id/service/:id",
-  bearerVolunteer,
-  handleVolunteerViewingHostService
-);
+app.get("/volunteer/:id/host/:id/service/:id", bearerVolunteer, handleVolunteerViewingHostService);
 
 app.get("/host/:id", bearerHost, handleGetHostProfile);
 app.put("/host/:id", bearerHost, updateHostProfile);
