@@ -2,10 +2,10 @@
 
 // 3rd Party Resources
 const express = require("express");
-const socketio = require('socket.io')
-const Filter = require('bad-words')
+const socketio = require("socket.io");
+const Filter = require("bad-words");
 const http = require("http");
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require("uuid");
 
 const client = require("../DataBase/data");
 
@@ -24,7 +24,7 @@ const app = express();
 app.use(cors());
 
 const Router = express.Router();
-
+/* istanbul ignore next */
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -32,17 +32,22 @@ app.use(express.urlencoded({ extended: true }));
 app.set("views", __dirname + "/../public/views");
 app.engine("html", require("ejs").renderFile);
 app.set("view engine", "html");
-
+/* istanbul ignore next */
 // Requiring files
 const basicAuth = require("./auth/middleware/basic");
 const basicAdmin = require("./auth/middleware/basicAdmin");
 const bearerAuth = require("./auth/middleware/bearer");
 const bearerVolunteer = require("./auth/middleware/bearerVolunteer");
 const bearerHost = require("./auth/middleware/bearerHost");
-const { generateMessage } = require('./utils/messages')
-const {addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users')
+const { generateMessage } = require("./utils/messages");
+const {
+  addUser,
+  removeUser,
+  getUser,
+  getUsersInRoom,
+} = require("./utils/users");
 
-
+/* istanbul ignore next */
 const {
   handleSearchBar,
   handleDisplaySearch,
@@ -126,10 +131,8 @@ app.get("/logout", (req, res) => {
   res.redirect("/login");
 });
 
-
-function checkAuthenticated(req, res, next){
-
-  let token = req.cookies['session-token'];
+function checkAuthenticated(req, res, next) {
+  let token = req.cookies["session-token"];
 
   let user = {};
   async function verify() {
@@ -153,60 +156,70 @@ function checkAuthenticated(req, res, next){
 }
 
 // ****************************SOCKETIO*******************************
-const server = http.createServer(app)
-const io = socketio(server)
+const server = http.createServer(app);
+const io = socketio(server);
 
 //socket
-io.on('connection', (socket) => {
-  console.log('New WebSocket connection')
+io.on("connection", (socket) => {
+  console.log("New WebSocket connection");
 
-  socket.on('join', (options, callback) => {
-      const { error, user } = addUser({ id: socket.id, ...options })
+  socket.on("join", (options, callback) => {
+    const { error, user } = addUser({ id: socket.id, ...options });
 
-      if (error) {
-          return callback(error)
-      }
+    if (error) {
+      return callback(error);
+    }
 
-      socket.join(user.room)
+    socket.join(user.room);
 
-      socket.emit('message', generateMessage(`${user.room}`, `Welcome ${user.username}`))
-      socket.broadcast.to(user.room).emit('message', generateMessage('Admin', `${user.username} has joined!`))
-      io.to(user.room).emit('roomData', {
-          room: user.room,
-          users: getUsersInRoom(user.room)
-      })
+    socket.emit(
+      "message",
+      generateMessage(`${user.room}`, `Welcome ${user.username}`)
+    );
+    socket.broadcast
+      .to(user.room)
+      .emit(
+        "message",
+        generateMessage("Admin", `${user.username} has joined!`)
+      );
+    io.to(user.room).emit("roomData", {
+      room: user.room,
+      users: getUsersInRoom(user.room),
+    });
 
-      callback()
-  })
+    callback();
+  });
 
-  socket.on('sendMessage', (message, callback) => {
-      const user = getUser(socket.id)
-      const filter = new Filter()
+  socket.on("sendMessage", (message, callback) => {
+    const user = getUser(socket.id);
+    const filter = new Filter();
 
-      if (filter.isProfane(message)) {
-          return callback('Profanity is not allowed!')
-      }
+    if (filter.isProfane(message)) {
+      return callback("Profanity is not allowed!");
+    }
 
-      io.to(user.room).emit('message', generateMessage(user.username, message))
-      callback()
-  })
+    io.to(user.room).emit("message", generateMessage(user.username, message));
+    callback();
+  });
 
-  socket.on('disconnect', () => {
-      const user = removeUser(socket.id)
-      if (user) {
-          io.to(user.room).emit('message', generateMessage('Admin', `${user.username} has left!`))
-          io.to(user.room).emit('roomData', {
-              room: user.room,
-              users: getUsersInRoom(user.room)
-          })
-      }
-  })
-})
+  socket.on("disconnect", () => {
+    const user = removeUser(socket.id);
+    if (user) {
+      io.to(user.room).emit(
+        "message",
+        generateMessage("Admin", `${user.username} has left!`)
+      );
+      io.to(user.room).emit("roomData", {
+        room: user.room,
+        users: getUsersInRoom(user.room),
+      });
+    }
+  });
+});
 
-app.get('/volunteer/:volId/host/:hostId/chat', handleVolunteerSocket)
-app.get('/host/:hostId/volunteer/:volId/chat', handleHostSocket)
-app.get('/chatRoom', handelChat)
-
+app.get("/volunteer/:volId/host/:hostId/chat", handleVolunteerSocket);
+app.get("/host/:hostId/volunteer/:volId/chat", handleHostSocket);
+app.get("/chatRoom", handelChat);
 
 // Socketio functions
 
@@ -217,10 +230,10 @@ async function handleVolunteerSocket(req, res) {
   const volunteerSearch = "select * from volunteer where id = $1;";
   let volunteerData = await client.query(volunteerSearch, [volId]);
   console.log(volunteerData.rows[0]);
-  let data = {username: volunteerData.rows[0].user_name, room: hostId};
+  let data = { username: volunteerData.rows[0].user_name, room: hostId };
   // // console.log(data);
 
-    res.render("joinroom", {data});
+  res.render("joinroom", { data });
 }
 
 async function handleHostSocket(req, res) {
@@ -230,15 +243,14 @@ async function handleHostSocket(req, res) {
   let hostData = await client.query(searchHost, [hostId]);
 
   console.log(hostData.rows);
-  let data = {username: hostData.rows[0].user_name, room: hostId};
-  res.render("joinroom", {data})
+  let data = { username: hostData.rows[0].user_name, room: hostId };
+  res.render("joinroom", { data });
 
-
-    res.render("joinroom", {data});
+  res.render("joinroom", { data });
 }
 
 function handelChat(req, res) {
-  res.render('chat')
+  res.render("chat");
 }
 
 // *******************************************************************
@@ -266,7 +278,6 @@ console.log(handleHome);
 
 app.get("/", handleHome);
 
-
 app.get("/volunteer/:id/host/:id", handleHome);
 
 app.get("/volunteers/sign_up", handleVolunteerForm);
@@ -279,7 +290,6 @@ app.post("/superuser", basicAdmin, handleAdmin);
 
 app.post("/searchResults", handleSearchBar);
 app.get("/searchResults", handleDisplaySearch);
-
 
 //admin\\
 
