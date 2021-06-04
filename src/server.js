@@ -151,8 +151,8 @@ function checkAuthenticated(req, res, next){
 }
 
 // ****************************SOCKETIO*******************************
-// const server = http.createServer(app)
-// const io = socketio(server)
+const server = http.createServer(app)
+const io = socketio(server)
 
 // const users = []
 
