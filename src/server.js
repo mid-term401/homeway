@@ -2,17 +2,19 @@
 
 // 3rd Party Resources
 const express = require("express");
-const socketio = require('socket.io')
-const Filter = require('bad-words')
+const socketio = require("socket.io");
+const Filter = require("bad-words");
 const http = require("http");
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require("uuid");
+
+// Packages for cookies
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const session = require("express-session");
 
 const client = require("../DataBase/data");
 
 const cors = require("cors");
-require("dotenv").config();
-
-const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 // Esoteric Resources
@@ -21,7 +23,29 @@ const notFound = require("./error-handlers/404.js");
 
 // Prepare the express app
 const app = express();
+// app.use(
+//   cors({
+//     origin: ["http://localhost:9000"],
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//     credentials: true,
+//   })
+// );
 app.use(cors());
+
+app.use(cookieParser());
+// app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(
+  session({
+    key: "userID",
+    secret: process.env.SECRET_KEY,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      expires: 60 * 60 * 24,
+    },
+  })
+);
 
 const Router = express.Router();
 
@@ -39,7 +63,6 @@ const basicAdmin = require("./auth/middleware/basicAdmin");
 const bearerAuth = require("./auth/middleware/bearer");
 const bearerVolunteer = require("./auth/middleware/bearerVolunteer");
 const bearerHost = require("./auth/middleware/bearerHost");
-
 
 const {
   handleSearchBar,
@@ -74,7 +97,6 @@ const {
 } = require("./auth/models/users");
 
 // App Level MW
-app.use(cors());
 //AOuth
 const { OAuth2Client } = require("google-auth-library");
 const CLIENT_ID =
@@ -124,10 +146,8 @@ app.get("/logout", (req, res) => {
   res.redirect("/login");
 });
 
-
-function checkAuthenticated(req, res, next){
-
-  let token = req.cookies['session-token'];
+function checkAuthenticated(req, res, next) {
+  let token = req.cookies["session-token"];
 
   let user = {};
   async function verify() {
@@ -151,8 +171,8 @@ function checkAuthenticated(req, res, next){
 }
 
 // ****************************SOCKETIO*******************************
-const server = http.createServer(app)
-const io = socketio(server)
+const server = http.createServer(app);
+const io = socketio(server);
 
 // const users = []
 
@@ -209,8 +229,6 @@ const io = socketio(server)
 //   }
 // }
 
-
-
 //socket
 // io.on('connection', (socket) => {
 //   console.log('New WebSocket connection')
@@ -260,7 +278,6 @@ const io = socketio(server)
 // app.get('/volunteer/:volId/host/:hostId/chat', handleVolunteerSocket)
 // app.get('/host/:hostId/volunteer/:volId/chat', handleHostSocket)
 // app.get('/chatRoom', handelChat)
-
 
 // // Socketio functions
 
@@ -317,7 +334,6 @@ console.log(handleHome);
 
 app.get("/", handleHome);
 
-
 app.get("/volunteer/:id/host/:id", handleHome);
 
 app.get("/volunteers/sign_up", handleVolunteerForm);
@@ -330,7 +346,6 @@ app.post("/superuser", basicAdmin, handleAdmin);
 
 app.post("/searchResults", handleSearchBar);
 app.get("/searchResults", handleDisplaySearch);
-
 
 //admin\\
 

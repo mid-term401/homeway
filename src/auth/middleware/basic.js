@@ -6,6 +6,8 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 
 
+
+
 module.exports = async (req, res, next) => {
   try {
     if (req.headers.authorization) {
@@ -14,11 +16,13 @@ module.exports = async (req, res, next) => {
 
       req.user = await checkVolunteerExists(user);
 
+
       if (req.user.length === 0) {
         req.user = await checkHostExists(user);
       }
+
       if (req.user.length === 0) {
-        res.json("Error Incorrect username or password");
+        res.send({message: "Invalid Login"});
       } else {
         const hashedPassword = req.user[0].password;
         const success = await bcrypt.compare(pass, hashedPassword);
@@ -41,7 +45,7 @@ async function checkVolunteerExists(userName) {
       .query(searchQuery, [userName])
     return data.rows;
   } catch (e) {
-    console.log(e.message);
+    res.send({e: e});
   }
 }
 
@@ -54,6 +58,6 @@ async function checkHostExists(userName) {
     return data.rows;
 
   } catch (e) {
-    console.log(e.message);
+    res.send({e: e});
   }
 }

@@ -11,17 +11,17 @@ const secretKey = process.env.SECRET_KEY;
 // functions
 async function handleSearchBar(req, res) {
   // console.log("From searchBar", req.user, req.token);
-  const countryName = req.body.myCountry;
-  const countryURL = `https://restcountries.eu/rest/v2/name/${countryName}`;
-  return superagent
-    .get(countryURL)
-    .then((data) => {
-      let countryNames = [];
-      data.body.map((element) => {
-        countryNames.push(new Country(element));
-      });
+  // const countryName = req.body.myCountry;
+  // const countryURL = `https://restcountries.eu/rest/v2/name/${countryName}`;
+  // return superagent
+  //   .get(countryURL)
+  //   .then((data) => {
+  //     let countryNames = [];
+  //     data.body.map((element) => {
+  //       countryNames.push(new Country(element));
+  //     });
       const query = "SELECT * FROM Service WHERE country=$1 OR title=$2";
-      let safeValue = [countryNames[0].country, req.body.WorkField];
+      let safeValue = [req.body.myCountry, req.body.WorkField];
       client
         .query(query, safeValue)
         .then((data) => {
@@ -30,11 +30,11 @@ async function handleSearchBar(req, res) {
         .catch((err) => {
           console.log(`error in getting search results from DB ${err}`);
         });
-    })
-    .catch((err) => {
-      res.json("Please enter a country name");
-      console.log(`error in getting the Countries names from the API ${err}`);
-    });
+    // })
+    // .catch((err) => {
+    //   res.json("Please enter a country name");
+    //   console.log(`error in getting the Countries names from the API ${err}`);
+    // });
 }
 
 function handleDisplaySearch(req, res) {
@@ -64,6 +64,11 @@ function handleHostForm(req, res) {
 }
 
 function handleSignInForm(req, res) {
+  // if(req.session.user) {
+  //   res.send({loggedIn: true, user: req.session.user})
+  // } else {
+  //   res.send({loggedIn: false })
+  // }
   res.render("signin");
 }
 
@@ -75,6 +80,8 @@ async function handleSignIn(req, res) {
         name: req.user.userData.user_name,
       };
       const token = jwt.sign(payload, secretKey);
+      req.session.user = req.user.userData;
+      console.log("session", req.session.user)
 
       // console.log("token", token);
       // const refreshToken = jwt.sign(payload, process.env.SECRET_KEY_REFRESHER)
@@ -129,6 +136,13 @@ async function handleVolunteerSignup(req, res) {
     if (results.length === 0) {
       const formData = req.body;
       const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+      // passing data to react
+      // const {username, first_name, last_name, email, country, birth_date, address} = formData;
+
+      // const password = hashedPassword;
+
+      // 
 
       let insertQuery =
         "insert into volunteer(user_name, first_name, last_name, password, email, country, birth_date, address) values ($1, $2, $3, $4, $5, $6, $7, $8)";
