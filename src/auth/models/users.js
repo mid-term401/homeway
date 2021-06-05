@@ -76,33 +76,35 @@ async function handleSignIn(req, res) {
   try {
     if (req.user.success === true) {
       const payload = {
-        id: req.user.userData.id,
-        name: req.user.userData.user_name,
+        id: req.user.userData.data.id,
+        name: req.user.userData.data.user_name,
+        role: req.user.userData.role
       };
       const token = jwt.sign(payload, secretKey);
-      req.session.user = req.user.userData;
-      console.log("session", req.session.user)
+      // req.session.user = req.user.userData;
+      // console.log("session", req.session.user)
 
       // console.log("token", token);
       // const refreshToken = jwt.sign(payload, process.env.SECRET_KEY_REFRESHER)
 
       //Check if host ot volunteer
+      console.log("Payload", req.user.userData.data)
 
       let updateQuery;
-      if (!req.user.userData.category) {
+      if (!req.user.userData.data.category) {
         updateQuery = "update volunteer set token = $1 where user_name = $2;";
       } else {
         updateQuery = "update host set token = $1 where user_name = $2;";
       }
       console.log(`********************************`);
       // Store the refresh token in DB
-      const safeValues = [token, req.user.userData.user_name];
+      const safeValues = [token, req.user.userData.data.user_name];
       client
         .query(updateQuery, safeValues)
         .then(() => {
           console.log(`Updated the token`);
           res.json({
-            username: req.user.userData.user_name,
+            username: req.user.userData.data.user_name,
             token: token,
           });
         })

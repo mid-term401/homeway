@@ -16,18 +16,17 @@ module.exports = async (req, res, next) => {
 
       req.user = await checkVolunteerExists(user);
 
-
-      if (req.user.length === 0) {
+      if (!req.user.data) {
         req.user = await checkHostExists(user);
       }
 
-      if (req.user.length === 0) {
+      if (!req.user.data) {
         res.send({message: "Invalid Login"});
       } else {
-        const hashedPassword = req.user[0].password;
+        const hashedPassword = req.user.data.password;
         const success = await bcrypt.compare(pass, hashedPassword);
         req.user = {
-          success: success, userData: req.user[0]
+          success: success, userData: req.user
         }
         next();
       }
@@ -43,7 +42,7 @@ async function checkVolunteerExists(userName) {
     const searchQuery = "select * from volunteer where user_name = $1 ;";
     let data = await client
       .query(searchQuery, [userName])
-    return data.rows;
+    return ({data: data.rows[0], role : "volunteer"}) ;
   } catch (e) {
     res.send({e: e});
   }
@@ -55,7 +54,7 @@ async function checkHostExists(userName) {
 
     let data = await client
       .query(searchQuery, [userName])
-    return data.rows;
+    return ({data: data.rows[0], role : "host"})
 
   } catch (e) {
     res.send({e: e});
