@@ -343,9 +343,11 @@ app.post("/hosts/sign_up", handleHostSignup);
 app.get("/sign_in", handleSignInForm);
 app.post("/sign_in", basicAuth, handleSignIn);
 app.post("/superuser", basicAdmin, handleAdmin);
+app.post("/superuser/sign_up", addAdmin);
 
 app.post("/searchResults", handleSearchBar);
 app.get("/searchResults", handleDisplaySearch);
+
 
 //admin\\
 
