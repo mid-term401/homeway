@@ -10,13 +10,15 @@ module.exports = async (req, res, next) => {
       const token = req.headers.authorization.split(' ').pop();
       const validUser = await checkToken(token);
 
+      console.log("validUser", validUser);
+
       if (!validUser) {
         res.json("Error Incorrect username or password");
       } else {
         req.user = validUser;
         req.token = validUser.token;
       }
-      console.log("***************", req.user, req.token);
+      console.log("***************beaerHost", req.user, req.token);
       next();
     }
   } catch (e) {
