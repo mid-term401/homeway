@@ -27,7 +27,6 @@ CREATE TABLE IF NOT EXISTS host (
   email VARCHAR (255) NOT NULL UNIQUE,
   country VARCHAR (50) NOT NULL,
   birth_date DATE,
-  category VARCHAR (50),
   address VARCHAR (50) NOT NULL,
   Gender text,
   rating int,
