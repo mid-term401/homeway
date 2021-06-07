@@ -13,14 +13,14 @@ module.exports = async (req, res, next) => {
 
       req.user = await checkAdminExists(user);
 
-      if (req.user.length === 0) {
+      if (!req.user.data) {
         res.json("Error Incorrect username or password");
       } else {
-        const hashedPassword = req.user[0].password;
+        const hashedPassword = req.user.data.password;
         const success = await bcrypt.compare(pass, hashedPassword);
         req.user = {
           success: success,
-          userData: req.user[0],
+          userData: req.user,
         };
         next();
       }
@@ -34,7 +34,7 @@ async function checkAdminExists(userName) {
   try {
     const searchQuery = "select * from admin where user_name = $1 ;";
     let data = await client.query(searchQuery, [userName]);
-    return data.rows;
+    return ({data: data.rows[0], role : "admin"})
   } catch (e) {
     console.log(e.message);
   }

@@ -527,8 +527,9 @@ async function handleAdmin(req, res) {
   try {
     if (req.user.success === true) {
       const payload = {
-        id: req.user.userData.id,
-        name: req.user.userData.user_name,
+        id: req.user.userData.data.id,
+        name: req.user.userData.data.user_name,
+        role: req.user.userData.role
       };
       const token = jwt.sign(payload, secretKey);
 
