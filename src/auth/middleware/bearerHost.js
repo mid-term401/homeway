@@ -30,6 +30,7 @@ async function checkToken(token) {
     const searchHost = "select * from host where token = $1 ;";
 
     let hostData = await client.query(searchHost, [token])
+    console.log(hostData)
     return hostData.rows[0];
   } catch (e) {
     console.log(e.message);
