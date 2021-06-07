@@ -447,6 +447,7 @@ async function handleVolunteerViewingHostService(req, res) {
 }
 
 async function handleGetHostProfile(req, res) {
+  console.log("test")
   let id = req.params.id;
   let newValue = req.body;
   let selectQ = `select * from host where id = $1;`;
