@@ -91,7 +91,7 @@ async function handleSignIn(req, res) {
       console.log("Payload", req.user.userData.data)
 
       let updateQuery;
-      if (!req.user.userData.data.category) {
+      if (req.user.userData.role === "volunteer") {
         updateQuery = "update volunteer set token = $1 where user_name = $2;";
       } else {
         updateQuery = "update host set token = $1 where user_name = $2;";
@@ -111,9 +111,6 @@ async function handleSignIn(req, res) {
         .catch((error) => {
           res.json("Error while updating the refresh token", error);
         });
-      res.setHeader("set-cookie", [
-        `JWT_TOKEN=${token}; httponly; samesite=lax`,
-      ]);
     } else {
       res.json("Error Incorrect username or password");
     }
