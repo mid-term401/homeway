@@ -8,6 +8,7 @@ module.exports = async (req, res, next) => {
     if (req.headers.authorization) {
 
       const token = req.headers.authorization.split(' ').pop();
+      console.log("token", token)
       const validUser = await checkToken(token);
 
       console.log("validUser", validUser);
