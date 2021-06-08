@@ -10,6 +10,7 @@ require("dotenv").config();
 
 module.exports = async (req, res, next) => {
   try {
+    console.log("inside")
     if (req.headers.authorization) {
       let basic = req.headers.authorization.split(' ').pop();
       let [user, pass] = base64.decode(basic).split(':');
