@@ -80,6 +80,8 @@ async function handleSignIn(req, res) {
         name: req.user.userData.data.user_name,
         role: req.user.userData.role
       };
+      console.log("---------role", req.user.userData.role);
+      console.log("---------role", payload.role);
       const token = jwt.sign(payload, secretKey);
       // req.session.user = req.user.userData;
       // console.log("session", req.session.user)
@@ -88,7 +90,7 @@ async function handleSignIn(req, res) {
       // const refreshToken = jwt.sign(payload, process.env.SECRET_KEY_REFRESHER)
 
       //Check if host ot volunteer
-      console.log("Payload", req.user.userData.data)
+      // console.log("Payload", req.user.userData.data)
 
       let updateQuery;
       if (req.user.userData.role === "volunteer") {
@@ -367,7 +369,7 @@ async function createServiceProfile(req, res) {
   let host_id = req.params.id;
   let selectQ = `insert into service  (title,description,country,
   type,details,duration,from_date,to_date,working_hours,
-  working_days,minumim_age,address,profile_image,host_id)
+  working_days,address,profile_image,host_id)
   values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)  RETURNING *;`;
 
   let safeValues = [
@@ -381,11 +383,12 @@ async function createServiceProfile(req, res) {
     req.body.to_date,
     req.body.working_hours,
     req.body.working_days,
-    req.body.minumim_age,
     req.body.address,
     req.body.profile_image,
     host_id,
   ];
+
+  console.log("", safeValues)
 
   let data = await client.query(selectQ, safeValues);
   res.redirect(`/host/${host_id}/service`);
@@ -395,7 +398,7 @@ async function updateServiceProfile(req, res) {
   let id = req.params.id;
   let selectQ = `update service set title=$1,description=$2,country=$3,
   type=$4,details=$5,duration=$6,from_date=$7,to_date=$8,working_hours=$9,
-  working_days=$10,minumim_age=$11,address=$12,profile_image=$13
+  working_days=$10,address=$12,profile_image=$13
   where id = $14 RETURNING *;`;
   let safeValues = [
     req.body.title,
