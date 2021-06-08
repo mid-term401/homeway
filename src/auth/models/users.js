@@ -20,21 +20,21 @@ async function handleSearchBar(req, res) {
   //     data.body.map((element) => {
   //       countryNames.push(new Country(element));
   //     });
-      const query = "SELECT * FROM Service WHERE country=$1 OR title=$2";
-      let safeValue = [req.body.myCountry, req.body.WorkField];
-      client
-        .query(query, safeValue)
-        .then((data) => {
-          res.json({ searchResults: data.rows });
-        })
-        .catch((err) => {
-          console.log(`error in getting search results from DB ${err}`);
-        });
-    // })
-    // .catch((err) => {
-    //   res.json("Please enter a country name");
-    //   console.log(`error in getting the Countries names from the API ${err}`);
-    // });
+  const query = "SELECT * FROM Service WHERE country=$1 OR title=$2";
+  let safeValue = [req.body.myCountry, req.body.WorkField];
+  client
+    .query(query, safeValue)
+    .then((data) => {
+      res.json({ searchResults: data.rows });
+    })
+    .catch((err) => {
+      console.log(`error in getting search results from DB ${err}`);
+    });
+  // })
+  // .catch((err) => {
+  //   res.json("Please enter a country name");
+  //   console.log(`error in getting the Countries names from the API ${err}`);
+  // });
 }
 
 function handleDisplaySearch(req, res) {
@@ -43,16 +43,6 @@ function handleDisplaySearch(req, res) {
 
 async function handleHome(req, res) {
   res.render("index");
-  // res.send("aya she");
-
-  // const token = req.cookies.JWT_TOKEN;
-  // if(token) {
-  //   const user = await validateToken(token, JWT_SECRET);
-
-  //   if(user === null) {
-  //     res.send
-  //   }
-  // }
 }
 
 function handleVolunteerForm(req, res) {
@@ -78,7 +68,7 @@ async function handleSignIn(req, res) {
       const payload = {
         id: req.user.userData.data.id,
         name: req.user.userData.data.user_name,
-        role: req.user.userData.role
+        role: req.user.userData.role,
       };
       console.log("---------role", req.user.userData.role);
       console.log("---------role", payload.role);
@@ -143,7 +133,7 @@ async function handleVolunteerSignup(req, res) {
 
       // const password = hashedPassword;
 
-      // 
+      //
 
       let insertQuery =
         "insert into volunteer(user_name, first_name, last_name, password, email, country, birth_date, address) values ($1, $2, $3, $4, $5, $6, $7, $8)";
@@ -446,7 +436,7 @@ async function handleVolunteerViewingHostService(req, res) {
 }
 
 async function handleGetHostProfile(req, res) {
-  console.log("test")
+  console.log("test");
   let id = req.params.id;
   let newValue = req.body;
   let selectQ = `select * from host where id = $1;`;
@@ -523,13 +513,35 @@ async function handleHostViewingVolunteer(req, res) {
   res.json(volunteer.rows[0]);
 }
 
+async function handleData(req, res) {
+  try {
+    console.log("Test");
+    const searchVolunteers = "select * from volunteer";
+    const searchHosts = "select * from host";
+    const searchServices = "select * from service";
+
+    // Get all the data
+    let volunteers = await client.query(searchVolunteers);
+    let hosts = await client.query(searchHosts);
+    let services = await client.query(searchServices);
+
+    res.json({
+      volunteers: volunteers.rows,
+      hosts: hosts.rows,
+      services: services.rows,
+    });
+  } catch (e) {
+    console.log("Error getting the data", e.message);
+  }
+}
+
 async function handleAdmin(req, res) {
   try {
     if (req.user.success === true) {
       const payload = {
         id: req.user.userData.data.id,
         name: req.user.userData.data.user_name,
-        role: req.user.userData.role
+        role: req.user.userData.role,
       };
       const token = jwt.sign(payload, secretKey);
 
@@ -631,6 +643,7 @@ module.exports = {
   handleOneHostService,
   deleteServiceProfile,
   handleHostViewingVolunteer,
+  handleData,
   handleAdmin,
   handleAdminHost,
   handleAdminVolunteer,
