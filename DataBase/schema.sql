@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS Service (
   working_hours VARCHAR (50),
   working_days VARCHAR (50),
   address VARCHAR (255),
+  minumim_age int NOT NULL,
   extra text,
   profile_image text,
   likes int,
