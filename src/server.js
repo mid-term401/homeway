@@ -86,6 +86,7 @@ const {
   handleOneHostService,
   deleteServiceProfile,
   handleHostViewingVolunteer,
+  handleData,
   handleAdmin,
   handleAdminHost,
   handleAdminVolunteer,
@@ -105,9 +106,6 @@ const Gclient = new OAuth2Client(CLIENT_ID);
 
 // Oauth
 
-app.get("/", (req, res) => {
-  res.render("index");
-});
 
 app.get("/login", (req, res) => {
   res.render("login");
@@ -330,11 +328,10 @@ app.get("/host/:id/service/:id", bearerHost, handleOneHostService);
 app.put("/host/:id/service/:id", bearerHost, updateServiceProfile);
 app.delete("/host/:id/service/:id", bearerHost, deleteServiceProfile);
 app.get("/host/:id/volunteer/:id", bearerHost, handleHostViewingVolunteer);
-console.log(handleHome);
 
 app.get("/", handleHome);
 
-app.get("/volunteer/:id/host/:id", handleHome);
+app.get("/data", handleData);
 
 app.get("/volunteers/sign_up", handleVolunteerForm);
 app.post("/volunteers/sign_up", handleVolunteerSignup);
