@@ -14,7 +14,7 @@
         
 body
 {
-  background-image: url(https://www.niche.com/blog/wp-content/uploads/2019/01/importance-of-community-service-social-2.jpg);
+  background-image: url("../../assets/logo.jpeg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -94,12 +94,13 @@ button:hover {
     </style>
 
     <div class="centered-form">
-        <div class="centered-form__box">
+        <div class="centered-form__box" style="box-shadow: none;">
+            <img src="" alt="">
             <div class="chat">
             <form action="/chatRoom" method="get">
                 <input type="hidden" name="username" value="<%=data.username%> ">
-                <input type="hidden" name="room" value="<%=data.room  %> ">
-                <button>start chat</button>
+                <input type="hidden" name="room" value="<%=data.room %> ">
+                <button style="background-color: #FB8C00;">start chat</button>
             </form>
         </div>
         </div>
