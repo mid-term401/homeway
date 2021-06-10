@@ -280,7 +280,7 @@ app.get('/chatRoom', handelChat)
 
 // Socketio functions
 
-async function handleVolunteerSocket(req, res) {
+async function handleSocket(req, res) {
   let host1Id = req.params.host1Id;
   let host2Id = req.params.host2Id;
   let roomId = hostId;
