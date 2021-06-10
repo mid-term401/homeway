@@ -284,10 +284,13 @@ async function handleSocket(req, res) {
   let host1Id = req.params.host1Id;
   let host2Id = req.params.host2Id;
   let roomId = hostId;
-  const hostSearch = "select * from volunteer where id = $1;";
-  let hostData = await client.query(hostSearch, [host1Id]);
+  const host1Search = "select * from host where id = $1;";
+  // const host2Search = "select * from host where id = $1;";
+  let host1Data = await client.query(host1Search, [host1Id]);
+  // let host2Data = await client.query(host2Search, [host2Id]);
+
   console.log(hostData.rows[0]);
-  let data = {username: hostData.rows[0].user_name, room: host2Id};
+  let data = {username: host1Data.rows[0].user_name, room: host2Id};
   // // console.log(data);
 
     res.render("joinroom", {data});
