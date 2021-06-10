@@ -274,10 +274,24 @@ io.on('connection', (socket) => {
 })
 
 app.get('/volunteer/:volId/host/:hostId/chat', handleVolunteerSocket)
+app.get('/host/:host1Id/host/:host2Id/chat', handleSocket)
 app.get('/host/:hostId/volunteer/:volId/chat', handleHostSocket)
 app.get('/chatRoom', handelChat)
 
 // Socketio functions
+
+async function handleVolunteerSocket(req, res) {
+  let host1Id = req.params.host1Id;
+  let host2Id = req.params.host2Id;
+  let roomId = hostId;
+  const hostSearch = "select * from volunteer where id = $1;";
+  let hostData = await client.query(hostSearch, [host1Id]);
+  console.log(hostData.rows[0]);
+  let data = {username: hostData.rows[0].user_name, room: host2Id};
+  // // console.log(data);
+
+    res.render("joinroom", {data});
+}
 
 async function handleVolunteerSocket(req, res) {
   let volId = req.params.volId;
